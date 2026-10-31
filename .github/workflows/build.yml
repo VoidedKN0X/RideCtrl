@@ -91,8 +91,18 @@ jobs:
           # Every library that ends up in the APK, including transitive ones. Nothing from Google
           # (Play services, Firebase, Guava, Gson, Protobuf, Material Components...) may be in it.
           ./gradlew --no-daemon -q :app:dependencies --configuration releaseRuntimeClasspath > deps.txt
-          if grep -nE 'com\.google\.|firebase|play-services|gms' deps.txt; then
-            echo "::error title=Google dependency::A Google library is in the release build (listed above). Remove or exclude it."
+          if grep -qE 'com\.google\.|firebase|play-services|gms' deps.txt; then
+            # One annotation per distinct library, with the line that pulls it in, so it shows on the run page.
+            grep -E 'com\.google\.|firebase|play-services|gms' deps.txt | sed -E 's/^[| \\+-]+//; s/ \(\*\)$//' | sort -u | head -20 | while IFS= read -r line; do
+              echo "::error title=Google dependency::${line}"
+            done
+            # And which library brings each one in.
+            grep -oE '(com\.google\.[a-z.]+|[a-z.]*firebase[a-z.]*):[A-Za-z0-9_.-]+' deps.txt | sort -u | head -5 | while IFS= read -r mod; do
+              ./gradlew --no-daemon -q :app:dependencyInsight --configuration releaseRuntimeClasspath --dependency "$mod" \
+                | grep -E '^\s*\\---|^\s*\+---' | sed -E 's/^[| \\+-]+//' | head -4 | while IFS= read -r via; do
+                  echo "::warning title=${mod} comes from::${via}"
+                done
+            done
             exit 1
           fi
           echo "No Google libraries in the release build."
