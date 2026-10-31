@@ -20,5 +20,6 @@ The first RideCtrl release: the app's foundation. Vehicles and logs arrive in th
 ### Security
 
 - **Fully offline:** RideCtrl has no internet permission, and every build now checks the APK has no network permission and that no Google library is included.
+- **No Google code at all:** the small Guava library that two AndroidX components bring along is left out, together with the baseline-profile installer that needed it (it only speeds up the first launches after an update and talks to app-store tooling).
 - **Telemetry-free:** no analytics, crash reporting or tracking of any kind.
 - RideCtrl is left out of Android's cloud backup and phone-to-phone transfer. Only 64-bit ARM phones (arm64-v8a) are supported.

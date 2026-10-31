@@ -7,3 +7,7 @@
 -keepclasseswithmembers class com.vknxworks.ridectrl.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
+
+# Google-free: Guava's listenablefuture jar is excluded from the build (see app/build.gradle.kts).
+# AndroidX's concurrent-futures still names its interface in classes RideCtrl never uses.
+-dontwarn com.google.common.util.concurrent.ListenableFuture
