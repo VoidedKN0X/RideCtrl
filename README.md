@@ -8,33 +8,36 @@ RideCtrl keeps track of everything about your vehicles: fuel and consumption, pr
 
 Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
-<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/RideCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a>
-
-> **Early development.** RideCtrl 0.1 is the app's foundation: look, app lock, privacy switches and unit settings. Vehicles and logs arrive over the next releases (see [Roadmap](#roadmap)).
+<a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/VoidedKN0X/RideCtrl"><img src=".github/assets/badge_obtainium.png" alt="Get it on Obtainium" height="80"></a> <a href="https://voidedkn0x.github.io/CtrlF-Droid/"><img src=".github/assets/badge_ctrlf-droid.png" alt="Get it from our F-Droid repo" height="80"></a>
 
 ## Features
 
 - **Works fully offline.** RideCtrl doesn't have the internet permission and never goes online. Everything stays on your phone
-- **Units your way:** km or miles, litres or gallons, °C or °F, and your currency. Everything is stored in metric, so switching never changes your logs
-- **App lock** with its own PIN and optional fingerprint unlock
-- **Hide in screenshots** and **Hide in recent apps**, both off until you turn them on
+- **Garage** with every vehicle (photo, make/model/year, engine type, plate, hidden VIN/frame number, purchase), each with its own **dashboard**: odometer, next maintenance, consumption, cost per km, last temperature, and quick-add for fuel, odometer, service, temperature and notes
+- **Fuel log** with consumption measured only between full tanks (L/100 km and km/L, or mpg), cost per km, monthly and yearly spend, and charts
+- **Premix calculator** made for the pump: 25:1, 32:1, 40:1, 50:1 or your own ratio, fuel to oil in ml and the reverse, remembering each vehicle's ratio and oil
+- **Maintenance** with your own intervals by km and/or time (a 2-stroke scooter list to start from, every interval blank, so nothing is passed off as a manufacturer figure), service records with parts, costs, who did it and photos, and an OK / soon / overdue list
+- **Reminders** as local notifications for maintenance (by date, and by km from your average riding) and document expiry
+- **Parts inventory** shared by every vehicle, with stock that follows the parts you use and a low-stock warning
+- **Mods log** with before and after photos and tuning results, and a **specs sheet** per vehicle where every value is yours, with its source
+- **Temperature log** for your gauge, with conditions and setup, a chart, and min/avg/max per setup to compare jetting or exhaust changes
+- **Odometer history and trips** (no GPS), with gauge swaps handled
+- **Documents** (insurance, registration, inspection…) with expiry dates and photos
+- **Costs:** total cost of ownership per vehicle, per category and per year, and cost per km
+- **Backup** to one file with every photo, optionally **encrypted** with a password; restore from it; **CSV export** for spreadsheets
+- **Home-screen widget** (odometer, next maintenance, Add fuel) and **app shortcuts** (Add fuel, Premix calculator, Add temp reading)
+- **Units your way:** km or miles, litres or gallons, °C or °F, and your currency, stored in metric so switching never changes your logs. Number fields take a comma or a period
+- **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; tablet and foldable layout
 
-## Roadmap
+## Screenshots
 
-- **Garage:** vehicles with photo, make/model/year, engine type, plate, frame number and odometer, each with its own dashboard
-- **Fuel log** with consumption between full tanks, cost per km and charts, and a **premix calculator** with big numbers for use at the pump
-- **Maintenance:** service items with your own km and time intervals (a 2-stroke scooter template to start from), service records, and an OK / soon / overdue list
-- **Reminders** for maintenance (by date, and by km from your riding average) and document expiry, as local notifications
-- **Parts inventory, mods log and a specs sheet** per vehicle
-- **Temperature log** with charts and min/avg/max per setup, to compare jetting or exhaust changes
-- **Costs:** total cost of ownership per vehicle, per category and per year
-- **Backup** to one file (optionally encrypted) and CSV export, a home-screen widget and app shortcuts
+Coming soon.
 
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
-- Permissions: none so far. Later releases add notifications only, for reminders. **No internet.**
+- Permissions: notifications (for reminders) and run at startup (to re-arm the daily reminder check after a restart). **No internet**, no camera and no storage permission: photos come through Android's photo picker and your camera app
 - **Google-free and de-Googled:** no Google Play services, Firebase or other Google libraries, and the app never contacts Google. It works the same on de-Googled phones (GrapheneOS, CalyxOS, /e/OS, LineageOS without Google apps).
 
 ## Install
@@ -43,7 +46,33 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 2. Open it on your phone. Android may ask you to allow installing apps from your browser or file manager.
 3. Updates install over the old version. Your data and settings are kept.
 
-**Automatic updates:** install [Obtainium](https://github.com/ImranR98/Obtainium), then tap the button above. It adds RideCtrl and installs every new release for you. If the button doesn't open the app, add `https://github.com/VoidedKN0X/RideCtrl` in Obtainium by hand.
+**Automatic updates:** on your phone, tap one of the buttons above.
+
+- **Obtainium:** install [Obtainium](https://github.com/ImranR98/Obtainium) first. The button adds RideCtrl and installs every new release for you.
+- **F-Droid:** adds the [CtrlF-Droid repo](https://voidedkn0x.github.io/CtrlF-Droid/) to F-Droid, Droid-ify or Neo Store, with every Ctrl app and automatic updates.
+
+If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X/RideCtrl` in Obtainium by hand.
+
+## Getting started
+
+1. On the **Garage** tab, tap **+** and add your vehicle. For a 2-stroke, keep **Start with the scooter service list** on, then fill in your own intervals under **Maintenance**.
+2. Log fills with **Fuel** on the dashboard. Fill up to the top and mark **Filled up**: consumption shows from the second full fill.
+3. Turn on reminders under **Settings > Reminders** (tap your profile picture, then **Settings**) and allow notifications.
+
+Settings, Backup and About are behind your profile picture at the top right of the Garage and Tools tabs.
+
+## Reminders on OPPO (ColorOS) and similar phones
+
+RideCtrl checks once a day for maintenance and documents that are due, with a single inexact alarm (no exact-alarm permission). Phones that stop background apps aggressively can block that check. Under **Settings > Reminders**, tap **Allow background activity** and set RideCtrl's battery use to **Unrestricted** (on ColorOS: *Battery > Allow background activity*, and allow auto-launch if your phone asks). Km-based reminders are estimated from your average km per day over the last 90 days.
+
+## Backup and moving to a new phone
+
+Tap your profile picture, then **Backup and export** (also on the Tools tab):
+
+- **Back up to a file** saves every vehicle, log and photo plus your units in one `.zip`, wherever you choose with Android's file picker. Sync it to your own server (with Syncthing, for example) if you like.
+- **Encrypted backup** does the same with a password: AES-256-GCM, with the key made from your password with PBKDF2-HMAC-SHA256 (600,000 rounds). Recommended, since backups hold frame numbers, plates and photos of your documents. The password can't be recovered.
+- **Restore from a file** checks the whole file first and asks before it **replaces** everything on the phone. The app lock stays as it is.
+- **CSV export** writes the fuel log, services, parts or temperature readings for spreadsheets.
 
 ## App lock
 
@@ -54,7 +83,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 - **The PIN is never stored.** It's stretched with 600,000 rounds of PBKDF2 and mixed with a key held in the phone's secure hardware.
 - **Wrong PINs:** after 5 tries you wait 30 seconds, doubling up to 15 minutes. Restarting the app or the phone, or changing the clock, doesn't skip the wait.
 - **Lock again:** as soon as you leave the app (the default), after 1, 5 or 15 minutes or 1 hour away, or only when the app restarts.
-- **Forgot your PIN?** It can't be recovered. The lock screen offers to delete everything on the phone and turn the lock off.
+- **Forgot your PIN?** It can't be recovered. The lock screen offers to delete everything on the phone and turn the lock off; restore from a backup file afterwards.
 
 **Hide in screenshots** and **Hide in recent apps** (both off by default): the first keeps RideCtrl out of screenshots and screen recordings, the second shows a blank card in the recent-apps view while screenshots still work. With the app lock on, the recent-apps view always shows a blank card.
 
@@ -62,7 +91,8 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 
 **Telemetry-free.** RideCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It has **no internet permission**, works fully offline and never connects to the internet. Every build checks that the app has no network permission and no Google libraries.
 
-- Everything stays on your phone. RideCtrl is left out of Android's cloud backup and its phone-to-phone transfer.
+- Everything stays on your phone. RideCtrl is left out of Android's cloud backup and its phone-to-phone transfer, so nothing leaves the phone unless you make a backup or CSV file and choose where it goes.
+- Reminders are local notifications; on the lock screen they only say "RideCtrl reminder".
 - The Support, Report a bug, Source code and Licence links on the You page open in your browser, only when you tap them.
 
 ## Build from source

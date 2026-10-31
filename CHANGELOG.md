@@ -36,6 +36,7 @@ RideCtrl is complete: every log, the premix calculator, reminders, costs, backup
 
 - The Garage and Tools tabs replace the placeholders from 0.1.0.
 - Settings has a new **Reminders** section.
+- The README describes the complete app, with getting started, reminders on OPPO (ColorOS) and backup sections, and the CtrlF-Droid install button.
 
 ### Security
 
