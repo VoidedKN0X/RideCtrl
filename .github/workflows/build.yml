@@ -87,7 +87,13 @@ jobs:
           ./gradlew --no-daemon assembleRelease 2>&1 | tee build.log
 
       - name: Check the app is Google-free
+        # Same signing env as the build: on CI the release build type refuses to configure without it.
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ vars.KEY_ALIAS || secrets.KEY_ALIAS }}
         run: |
+          set -o pipefail
           # Every library that ends up in the APK, including transitive ones. Nothing from Google
           # (Play services, Firebase, Guava, Gson, Protobuf, Material Components...) may be in it.
           ./gradlew --no-daemon -q :app:dependencies --configuration releaseRuntimeClasspath > deps.txt
