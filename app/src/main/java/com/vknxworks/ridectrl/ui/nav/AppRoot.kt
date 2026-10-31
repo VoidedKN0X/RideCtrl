@@ -58,15 +58,43 @@ import com.vknxworks.ridectrl.ui.components.LocalBottomClearance
 import com.vknxworks.ridectrl.ui.components.CtrlBottomBar
 import com.vknxworks.ridectrl.ui.components.TabItem
 import com.vknxworks.ridectrl.ui.theme.CtrlColors
+import androidx.navigation.toRoute
+import com.vknxworks.ridectrl.ui.fuel.FuelEditScreen
+import com.vknxworks.ridectrl.ui.fuel.FuelScreen
+import com.vknxworks.ridectrl.ui.fuel.PremixScreen
 import com.vknxworks.ridectrl.ui.garage.GarageScreen
+import com.vknxworks.ridectrl.ui.garage.VehicleEditScreen
+import com.vknxworks.ridectrl.ui.garage.VehicleScreen
+import com.vknxworks.ridectrl.ui.logs.CostsScreen
+import com.vknxworks.ridectrl.ui.logs.DocEditScreen
+import com.vknxworks.ridectrl.ui.logs.DocsScreen
+import com.vknxworks.ridectrl.ui.logs.NoteEditScreen
+import com.vknxworks.ridectrl.ui.logs.NotesScreen
+import com.vknxworks.ridectrl.ui.logs.OdometerEditScreen
+import com.vknxworks.ridectrl.ui.logs.OdometerScreen
+import com.vknxworks.ridectrl.ui.logs.TempEditScreen
+import com.vknxworks.ridectrl.ui.logs.TempsScreen
+import com.vknxworks.ridectrl.ui.logs.TripEditScreen
+import com.vknxworks.ridectrl.ui.maintenance.MaintenanceScreen
+import com.vknxworks.ridectrl.ui.maintenance.ServiceEditScreen
+import com.vknxworks.ridectrl.ui.maintenance.ServiceItemEditScreen
+import com.vknxworks.ridectrl.ui.parts.ModEditScreen
+import com.vknxworks.ridectrl.ui.parts.ModsScreen
+import com.vknxworks.ridectrl.ui.parts.PartEditScreen
+import com.vknxworks.ridectrl.ui.parts.PartsScreen
+import com.vknxworks.ridectrl.ui.parts.SpecsScreen
+import com.vknxworks.ridectrl.ui.settings.BackupScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.ridectrl.ui.settings.SettingsScreen
 import com.vknxworks.ridectrl.ui.tools.ToolsScreen
 import com.vknxworks.ridectrl.ui.settings.YouScreen
 
 @Composable
 fun AppRoot() {
+    val ready by LocalContext.current.container.logs.ready.collectAsStateWithLifecycle()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        MainScaffold()
+        // The logs load from disk in a moment; screens read them as soon as they open.
+        if (ready) MainScaffold()
     }
 }
 
@@ -99,6 +127,7 @@ private fun MainScaffold() {
     }
 
     CompositionLocalProvider(LocalNavigator provides navigator) {
+        PendingActions(navigator)
         BoxWithConstraints(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             if (maxWidth >= 600.dp) {
                 // Tablets and unfolded foldables: a side rail.
@@ -191,5 +220,66 @@ private fun AppNavHost(navController: NavHostController) {
         composable<ToolsRoute> { ToolsScreen() }
         composable<YouRoute> { YouScreen() }
         composable<SettingsRoute> { SettingsScreen() }
+        composable<BackupRoute> { BackupScreen() }
+
+        composable<VehicleRoute> { VehicleScreen(it.toRoute<VehicleRoute>().id) }
+        composable<VehicleEditRoute> { VehicleEditScreen(it.toRoute<VehicleEditRoute>().id) }
+
+        composable<FuelRoute> { FuelScreen(it.toRoute<FuelRoute>().vehicleId) }
+        composable<FuelEditRoute> { val r = it.toRoute<FuelEditRoute>(); FuelEditScreen(r.vehicleId, r.id) }
+        composable<PremixRoute> { PremixScreen(it.toRoute<PremixRoute>().vehicleId) }
+
+        composable<MaintenanceRoute> { MaintenanceScreen(it.toRoute<MaintenanceRoute>().vehicleId) }
+        composable<ServiceItemEditRoute> { val r = it.toRoute<ServiceItemEditRoute>(); ServiceItemEditScreen(r.vehicleId, r.id) }
+        composable<ServiceEditRoute> { val r = it.toRoute<ServiceEditRoute>(); ServiceEditScreen(r.vehicleId, r.id, r.itemId) }
+
+        composable<PartsRoute> { PartsScreen() }
+        composable<PartEditRoute> { val r = it.toRoute<PartEditRoute>(); PartEditScreen(r.id, r.vehicleId) }
+        composable<ModsRoute> { ModsScreen(it.toRoute<ModsRoute>().vehicleId) }
+        composable<ModEditRoute> { val r = it.toRoute<ModEditRoute>(); ModEditScreen(r.vehicleId, r.id) }
+        composable<SpecsRoute> { SpecsScreen(it.toRoute<SpecsRoute>().vehicleId) }
+
+        composable<TempsRoute> { TempsScreen(it.toRoute<TempsRoute>().vehicleId) }
+        composable<TempEditRoute> { val r = it.toRoute<TempEditRoute>(); TempEditScreen(r.vehicleId, r.id) }
+        composable<OdometerRoute> { OdometerScreen(it.toRoute<OdometerRoute>().vehicleId) }
+        composable<OdometerEditRoute> { val r = it.toRoute<OdometerEditRoute>(); OdometerEditScreen(r.vehicleId, r.id) }
+        composable<TripEditRoute> { val r = it.toRoute<TripEditRoute>(); TripEditScreen(r.vehicleId, r.id) }
+
+        composable<DocsRoute> { DocsScreen(it.toRoute<DocsRoute>().vehicleId) }
+        composable<DocEditRoute> { val r = it.toRoute<DocEditRoute>(); DocEditScreen(r.vehicleId, r.id) }
+        composable<NotesRoute> { NotesScreen(it.toRoute<NotesRoute>().vehicleId) }
+        composable<NoteEditRoute> { val r = it.toRoute<NoteEditRoute>(); NoteEditScreen(r.vehicleId, r.id) }
+        composable<CostsRoute> { CostsScreen(it.toRoute<CostsRoute>().vehicleId) }
+    }
+}
+
+/**
+ * Opens what a launcher shortcut, the widget or a reminder asked for ("fuel:<id>", "premix", "temp",
+ * "maintenance:<id>"...). Shortcuts without a vehicle use the main vehicle.
+ */
+@Composable
+private fun PendingActions(navigator: Navigator) {
+    val c = LocalContext.current.container
+    val action by c.pendingAction.collectAsStateWithLifecycle()
+    val ready by c.logs.ready.collectAsStateWithLifecycle()
+    LaunchedEffect(action, ready) {
+        val a = action ?: return@LaunchedEffect
+        if (!ready) return@LaunchedEffect
+        c.pendingAction.value = null
+        val data = c.logs.data.value
+        val mainId = c.settings.settings.value.mainVehicleId
+        val main = (data.vehicles.firstOrNull { it.id == mainId } ?: data.vehicles.minByOrNull { it.created })?.id
+        val kind = a.substringBefore(':')
+        val vid = a.substringAfter(':', "").ifBlank { null }?.takeIf { id -> data.vehicles.any { it.id == id } } ?: main
+        when {
+            kind == "premix" -> navigator.navigate(PremixRoute(vid))
+            vid == null -> navigator.navigate(GarageRoute)
+            kind == "fuel" -> { navigator.navigate(VehicleRoute(vid)); navigator.navigate(FuelEditRoute(vid)) }
+            kind == "temp" -> { navigator.navigate(VehicleRoute(vid)); navigator.navigate(TempEditRoute(vid)) }
+            kind == "maintenance" -> { navigator.navigate(VehicleRoute(vid)); navigator.navigate(MaintenanceRoute(vid)) }
+            kind == "docs" -> { navigator.navigate(VehicleRoute(vid)); navigator.navigate(DocsRoute(vid)) }
+            kind == "vehicle" -> navigator.navigate(VehicleRoute(vid))
+            else -> Unit
+        }
     }
 }

@@ -139,6 +139,8 @@ object CtrlColors {
     val Error: Color @Composable @ReadOnlyComposable get() = LocalCtrlColors.current.Error
     val OnError: Color @Composable @ReadOnlyComposable get() = LocalCtrlColors.current.OnError
     val OnAccent: Color @Composable @ReadOnlyComposable get() = LocalCtrlColors.current.OnAccent
+    /** "Due soon" amber, readable on both backgrounds. */
+    val Warning: Color @Composable @ReadOnlyComposable get() = if (LocalCtrlColors.current.isDark) Color(0xFFFFC46B) else Color(0xFF9A5B00)
 }
 
 /** Material's colour scheme built from a palette, for the stock components (text buttons, menus, cursors). */

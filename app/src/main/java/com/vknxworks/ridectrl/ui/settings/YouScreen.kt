@@ -68,6 +68,7 @@ import com.vknxworks.ridectrl.ui.theme.CtrlColors
 import com.vknxworks.ridectrl.ui.theme.CtrlType
 import com.vknxworks.ridectrl.ui.lock.AppLock
 import com.vknxworks.ridectrl.ui.nav.LocalNavigator
+import com.vknxworks.ridectrl.ui.nav.BackupRoute
 import com.vknxworks.ridectrl.ui.nav.SettingsRoute
 import com.vknxworks.ridectrl.ui.theme.Gutter
 import kotlinx.coroutines.Dispatchers
@@ -144,6 +145,13 @@ fun YouScreen() {
             }
 
             Group(stringResource(R.string.label_app)) {
+                GroupRow(
+                    stringResource(R.string.backup_title),
+                    stringResource(R.string.backup_sub),
+                    icon = Icons.Outlined.Backup,
+                    showChevron = true,
+                    onClick = { nav.navigate(BackupRoute) },
+                )
                 GroupRow(
                     stringResource(R.string.settings),
                     stringResource(R.string.settings_subtitle),

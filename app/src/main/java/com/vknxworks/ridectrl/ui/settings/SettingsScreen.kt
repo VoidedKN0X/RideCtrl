@@ -1,6 +1,23 @@
 package com.vknxworks.ridectrl.ui.settings
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.PowerManager
+import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.BatteryChargingFull
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material.icons.outlined.Star
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.pluralStringResource
+import com.vknxworks.ridectrl.ui.components.rememberFmt
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -71,7 +88,83 @@ fun SettingsScreen() {
         ) {
             PrivacyAndSecurityGroup(settings)
 
+            RemindersGroup(settings) { t -> set(t) }
+
             UnitsGroup(settings) { t -> set(t) }
+        }
+    }
+}
+
+/**
+ * Reminders: local notifications for maintenance and documents, checked once a day. On ColorOS and other
+ * phones that stop background work aggressively, RideCtrl needs to be allowed to run in the background.
+ */
+@Composable
+private fun RemindersGroup(settings: AppSettings, set: ((AppSettings) -> AppSettings) -> Unit) {
+    val context = LocalContext.current
+    val c = context.container
+    val fmt = rememberFmt()
+    val data by c.logs.data.collectAsStateWithLifecycle()
+    var granted by remember {
+        mutableStateOf(context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED)
+    }
+    val ask = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
+        granted = ok
+        if (ok) set { it.copy(reminders = true) }
+    }
+    val pm = context.getSystemService(PowerManager::class.java)
+    val unrestricted = pm?.isIgnoringBatteryOptimizations(context.packageName) == true
+
+    Group(stringResource(R.string.group_reminders), footer = stringResource(R.string.reminders_footer)) {
+        GroupSwitch(
+            stringResource(R.string.reminders),
+            stringResource(if (settings.reminders && !granted) R.string.reminders_no_permission else R.string.reminders_sub),
+            checked = settings.reminders && granted,
+            icon = Icons.Outlined.Notifications,
+        ) { on ->
+            if (on && !granted) {
+                AppLock.expectReturn()
+                ask.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                set { it.copy(reminders = on) }
+            }
+        }
+        GroupChoice(
+            stringResource(R.string.reminders_days),
+            listOf(3, 7, 14, 30, 60).map { it to pluralStringResource(R.plurals.days_ahead, it, it) },
+            settings.warnDays,
+            icon = Icons.Outlined.Event,
+        ) { d -> set { it.copy(warnDays = d) } }
+        GroupChoice(
+            stringResource(R.string.reminders_km),
+            listOf(50.0, 100.0, 200.0, 300.0, 500.0, 1000.0).map { it to fmt.distance(it) },
+            settings.warnKm,
+            icon = Icons.Outlined.Speed,
+            fallbackLabel = fmt.distance(settings.warnKm),
+        ) { k -> set { it.copy(warnKm = k) } }
+        GroupRow(
+            stringResource(R.string.reminders_battery),
+            stringResource(if (unrestricted) R.string.reminders_battery_ok else R.string.reminders_battery_sub),
+            icon = Icons.Outlined.BatteryChargingFull,
+            showChevron = true,
+            onClick = {
+                AppLock.expectReturn()
+                val intents = listOf(
+                    Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS),
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:${context.packageName}")),
+                )
+                for (i in intents) {
+                    if (runCatching { context.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess) break
+                }
+            },
+        )
+        if (data.vehicles.size > 1) {
+            GroupChoice(
+                stringResource(R.string.main_vehicle),
+                data.vehicles.map { it.id as String? to it.name },
+                settings.mainVehicleId ?: data.vehicles.minByOrNull { it.created }?.id,
+                icon = Icons.Outlined.Star,
+            ) { id -> set { it.copy(mainVehicleId = id) } }
         }
     }
 }

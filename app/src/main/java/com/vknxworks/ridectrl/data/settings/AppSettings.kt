@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.io.IOException
@@ -62,6 +63,14 @@ data class AppSettings(
     val hideScreenshots: Boolean = false,
     /** "Hide in recent apps": the Recents view shows a blank card. Screenshots still work. */
     val hideRecents: Boolean = false,
+    /** Local notifications for maintenance and documents. */
+    val reminders: Boolean = true,
+    /** Warn this many days before something is due. */
+    val warnDays: Int = 14,
+    /** Warn this many km before a service item is due (stored in km). */
+    val warnKm: Double = 300.0,
+    /** The vehicle the widget and shortcuts use; null means the first one. */
+    val mainVehicleId: String? = null,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -73,6 +82,10 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val lockTimeout = stringPreferencesKey("lock_timeout")
         val hideScreenshots = booleanPreferencesKey("hide_screenshots")
         val hideRecents = booleanPreferencesKey("hide_recents")
+        val reminders = booleanPreferencesKey("reminders")
+        val warnDays = stringPreferencesKey("warn_days")
+        val warnKm = stringPreferencesKey("warn_km")
+        val mainVehicle = stringPreferencesKey("main_vehicle")
     }
 
     /** The saved settings; if the settings file can't be read, the defaults instead of a crash. */
@@ -95,7 +108,14 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         lockTimeout = enumOr(this[K.lockTimeout], LockTimeout.IMMEDIATELY),
         hideScreenshots = this[K.hideScreenshots] ?: false,
         hideRecents = this[K.hideRecents] ?: false,
+        reminders = this[K.reminders] ?: true,
+        warnDays = this[K.warnDays]?.toIntOrNull()?.coerceIn(0, 365) ?: 14,
+        warnKm = this[K.warnKm]?.toDoubleOrNull()?.coerceIn(0.0, 100_000.0) ?: 300.0,
+        mainVehicleId = this[K.mainVehicle]?.takeIf { it.isNotBlank() },
     )
+
+    /** The saved settings read straight from disk (reminder alarms and the widget run without the UI). */
+    suspend fun current(): AppSettings = stored.first()
 
     /** Saves a change. If the phone's storage fails, the change is dropped instead of closing the app. */
     suspend fun update(transform: (AppSettings) -> AppSettings) {
@@ -109,6 +129,10 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
                 p[K.lockTimeout] = s.lockTimeout.name
                 p[K.hideScreenshots] = s.hideScreenshots
                 p[K.hideRecents] = s.hideRecents
+                p[K.reminders] = s.reminders
+                p[K.warnDays] = s.warnDays.toString()
+                p[K.warnKm] = s.warnKm.toString()
+                if (s.mainVehicleId != null) p[K.mainVehicle] = s.mainVehicleId else p.remove(K.mainVehicle)
             }
         } catch (e: IOException) {
             // Nothing to do: the settings stay as they were.

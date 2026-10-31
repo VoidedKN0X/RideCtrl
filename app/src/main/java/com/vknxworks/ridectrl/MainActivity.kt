@@ -1,6 +1,8 @@
 package com.vknxworks.ridectrl
 
+import android.content.Intent
 import android.os.Bundle
+import com.vknxworks.ridectrl.reminders.Reminders
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -18,10 +20,17 @@ import com.vknxworks.ridectrl.ui.theme.RideCtrlTheme
 
 class MainActivity : ComponentActivity() {
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handle(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val c = container
+        if (savedInstanceState == null) handle(intent)
         setContent {
             // Follows the phone's dark theme setting. Status and navigation bars take the background colour,
             // with light icons in dark and dark icons in light.
@@ -48,6 +57,20 @@ class MainActivity : ComponentActivity() {
                 AppLockGate { AppRoot() }
             }
         }
+    }
+}
+
+/** Shortcuts, the widget and reminders open RideCtrl with an action; the UI picks it up once unlocked. */
+private fun MainActivity.handle(intent: Intent?) {
+    val action = when (intent?.action) {
+        "com.vknxworks.ridectrl.ADD_FUEL" -> "fuel"
+        "com.vknxworks.ridectrl.PREMIX" -> "premix"
+        "com.vknxworks.ridectrl.ADD_TEMP" -> "temp"
+        else -> intent?.getStringExtra(Reminders.EXTRA_ACTION)
+    }
+    // Only the actions RideCtrl itself sends; anything else is ignored.
+    if (action != null && action.substringBefore(':') in setOf("fuel", "premix", "temp", "maintenance", "docs", "vehicle", "garage")) {
+        container.pendingAction.value = action
     }
 }
 

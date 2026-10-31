@@ -11,6 +11,20 @@ class Navigator(val nav: NavHostController) {
     fun back() {
         nav.popBackStack()
     }
+
+    /** Opens [route] in place of the current screen (after saving a new vehicle, its dashboard replaces the editor). */
+    fun replace(route: Any) {
+        val current = nav.currentBackStackEntry?.destination?.id
+        nav.navigate(route) {
+            launchSingleTop = true
+            if (current != null) popUpTo(current) { inclusive = true }
+        }
+    }
+
+    /** Back to the Garage, closing everything above it (after deleting a vehicle). */
+    fun toGarage() {
+        nav.popBackStack(GarageRoute, inclusive = false)
+    }
 }
 
 val LocalNavigator = staticCompositionLocalOf<Navigator> { error("No navigator") }

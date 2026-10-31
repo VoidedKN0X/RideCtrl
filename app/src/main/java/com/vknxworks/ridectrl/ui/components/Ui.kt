@@ -302,7 +302,7 @@ fun <T> ChoiceSheet(
     CtrlBottomSheet(onDismissRequest = onDismiss) {
         Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp))
         LazyColumn(Modifier.navigationBarsPadding(), contentPadding = PaddingValues(bottom = 16.dp)) {
-            items(options, key = { it.second }) { (value, label) ->
+            items(options) { (value, label) ->
                 val isSel = value == selected
                 Row(
                     Modifier

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_fuel"
+        android:shortcutId="add_fuel"
+        android:shortcutLongLabel="@string/action_add_fuel"
+        android:shortcutShortLabel="@string/shortcut_fuel_short">
+        <intent
+            android:action="com.vknxworks.ridectrl.ADD_FUEL"
+            android:targetClass="com.vknxworks.ridectrl.MainActivity"
+            android:targetPackage="com.vknxworks.ridectrl" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_premix"
+        android:shortcutId="premix"
+        android:shortcutLongLabel="@string/premix_title"
+        android:shortcutShortLabel="@string/shortcut_premix_short">
+        <intent
+            android:action="com.vknxworks.ridectrl.PREMIX"
+            android:targetClass="com.vknxworks.ridectrl.MainActivity"
+            android:targetPackage="com.vknxworks.ridectrl" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_temp"
+        android:shortcutId="add_temp"
+        android:shortcutLongLabel="@string/action_add_temp"
+        android:shortcutShortLabel="@string/shortcut_temp_short">
+        <intent
+            android:action="com.vknxworks.ridectrl.ADD_TEMP"
+            android:targetClass="com.vknxworks.ridectrl.MainActivity"
+            android:targetPackage="com.vknxworks.ridectrl" />
+    </shortcut>
+</shortcuts>
