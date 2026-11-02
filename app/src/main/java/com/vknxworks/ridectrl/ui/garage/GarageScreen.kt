@@ -122,7 +122,7 @@ fun GarageScreen() {
                         modifier = Modifier.padding(start = Gutter, end = Gutter, top = 18.dp, bottom = 8.dp),
                     )
                 }
-                items(vehicles.drop(1), key = { it.id }) { v ->
+                items(vehicles.drop(1), key = { "vehicle-${it.id}" }) { v ->
                     val worst = data.dueList(v.id, settings.warnDays, settings.warnKm).firstOrNull()?.state ?: DueState.UNKNOWN
                     CtrlCard(
                         Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 5.dp),

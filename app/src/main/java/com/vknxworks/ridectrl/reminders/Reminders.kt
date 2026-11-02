@@ -145,12 +145,16 @@ object Reminders {
             .setSmallIcon(R.drawable.ic_stat_ride)
             .setContentTitle(context.getString(R.string.reminder_public))
             .build()
+        // With the app lock on, the notification itself doesn't say what's due either: only after unlocking.
+        val locked = context.container.vault.enabled
+        val shownTitle = if (locked) context.getString(R.string.reminder_public) else title
+        val shownText = if (locked) context.getString(R.string.reminder_locked) else text
         val n = Notification.Builder(context, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_ride)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setSubText(vehicle.ifBlank { null })
-            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setContentTitle(shownTitle)
+            .setContentText(shownText)
+            .setSubText(if (locked) null else vehicle.ifBlank { null })
+            .setStyle(Notification.BigTextStyle().bigText(shownText))
             .setContentIntent(open)
             .setAutoCancel(true)
             .setVisibility(Notification.VISIBILITY_PRIVATE)

@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 /**
  * The glance widget: the main vehicle's odometer and next maintenance due, with an "Add fuel" button.
  * The main vehicle is chosen in Settings (the first vehicle until then). Nothing here goes online.
+ * While the app lock is on it only shows "Locked"; its buttons open RideCtrl's lock screen first.
  */
 class RideWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
@@ -44,9 +45,16 @@ class RideWidget : AppWidgetProvider() {
             val settings = context.container.settings.current()
             val data = LogRepository.read(context)
             val fmt = Fmt(settings)
-            val vehicle = data.vehicles.firstOrNull { it.id == settings.mainVehicleId } ?: data.vehicles.firstOrNull()
+            // With the app lock on, the widget shows nothing from the logs (no vehicle, odometer or due item):
+            // anyone holding the unlocked phone would otherwise read them on the home screen.
+            val locked = context.container.vault.enabled
+            val vehicle = if (locked) null else data.vehicles.firstOrNull { it.id == settings.mainVehicleId } ?: data.vehicles.firstOrNull()
             val views = RemoteViews(context.packageName, R.layout.widget_ride)
-            if (vehicle == null) {
+            if (locked) {
+                views.setTextViewText(R.id.widget_name, context.getString(R.string.app_name))
+                views.setTextViewText(R.id.widget_odo, "–")
+                views.setTextViewText(R.id.widget_due, context.getString(R.string.widget_locked))
+            } else if (vehicle == null) {
                 views.setTextViewText(R.id.widget_name, context.getString(R.string.app_name))
                 views.setTextViewText(R.id.widget_odo, "–")
                 views.setTextViewText(R.id.widget_due, context.getString(R.string.widget_no_vehicle))
@@ -72,7 +80,7 @@ class RideWidget : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_due, due)
             }
             views.setOnClickPendingIntent(R.id.widget_root, open(context, 10, vehicle?.let { "vehicle:${it.id}" } ?: "garage"))
-            views.setOnClickPendingIntent(R.id.widget_add_fuel, open(context, 11, vehicle?.let { "fuel:${it.id}" } ?: "garage"))
+            views.setOnClickPendingIntent(R.id.widget_add_fuel, open(context, 11, vehicle?.let { "fuel:${it.id}" } ?: "fuel"))
             manager.updateAppWidget(ids, views)
         }
 

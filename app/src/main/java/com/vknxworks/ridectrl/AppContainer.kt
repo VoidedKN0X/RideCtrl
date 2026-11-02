@@ -59,11 +59,18 @@ class AppContainer(val context: Context) {
         // Unlocked first, so the lock screen doesn't flash up while the PIN is being saved.
         AppLock.markUnlocked()
         withContext(Dispatchers.Default) { vault.setUp(pin) }
+        refreshWidget()
     }
 
     /** Turns the app lock off (after the PIN was confirmed). */
     fun disableLock() {
         vault.disable()
+        refreshWidget()
+    }
+
+    /** The widget hides its contents while the app lock is on, so it follows the lock being turned on or off. */
+    private fun refreshWidget() {
+        appScope.launch { runCatching { RideWidget.updateAll(context) } }
     }
 
     /**
@@ -76,6 +83,7 @@ class AppContainer(val context: Context) {
         settings.update { AppSettings() }
         vault.disable()
         AppLock.markUnlocked()
+        refreshWidget()
     }
 
     fun onLocked() {

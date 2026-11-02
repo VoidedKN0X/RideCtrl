@@ -542,6 +542,7 @@
     <string name="reminder_doc_soon">%1$s expires soon</string>
     <string name="reminder_doc_expired">%1$s has expired</string>
     <string name="reminder_public">RideCtrl reminder</string>
+    <string name="reminder_locked">Something is due. Open RideCtrl to see what.</string>
 
     <!-- Widget and shortcuts -->
     <string name="widget_name">RideCtrl</string>
@@ -549,6 +550,7 @@
     <string name="widget_no_vehicle">Add a vehicle in RideCtrl</string>
     <string name="widget_nothing_due">Nothing due yet</string>
     <string name="widget_next">Next</string>
+    <string name="widget_locked">Locked. Open RideCtrl to see your vehicles.</string>
     <string name="shortcut_fuel_short">Add fuel</string>
     <string name="shortcut_premix_short">Premix</string>
     <string name="shortcut_temp_short">Temp reading</string>

@@ -66,6 +66,9 @@ object BackupFile {
     private val MAGIC = "RIDECTRL-ENC1".toByteArray(Charsets.US_ASCII)
     private const val ITERATIONS = 600_000
     private const val MAX_BYTES = 1_000_000_000L
+    /** Unpacked size limits, so a small file that unpacks to gigabytes (a "zip bomb") is refused. */
+    private const val MAX_JSON_BYTES = 64L * 1024 * 1024
+    private const val MAX_PHOTO_BYTES = 64L * 1024 * 1024
 
     fun write(out: OutputStream, data: AppData, settings: AppSettings, photosDir: File, password: CharArray?) {
         val manifest = BackupManifest(
@@ -131,20 +134,27 @@ object BackupFile {
         }
         var manifest: BackupManifest? = null
         val photos = mutableMapOf<String, ByteArray>()
+        var unpacked = 0L
         try {
             ZipInputStream(ByteArrayInputStream(zipBytes)).use { zip ->
                 while (true) {
                     val e = zip.nextEntry ?: break
                     when {
                         e.name == "ridectrl.json" -> {
-                            val text = zip.readBytes().toString(Charsets.UTF_8)
-                            manifest = dataJson.decodeFromString(BackupManifest.serializer(), text)
+                            val raw = readEntry(zip, MAX_JSON_BYTES)
+                            unpacked += raw.size
+                            manifest = dataJson.decodeFromString(BackupManifest.serializer(), raw.toString(Charsets.UTF_8))
                         }
                         e.name.startsWith("photos/") -> {
                             val name = e.name.removePrefix("photos/")
-                            if (safeName(name)) photos[name] = zip.readBytes()
+                            if (safeName(name)) {
+                                val raw = readEntry(zip, MAX_PHOTO_BYTES)
+                                unpacked += raw.size
+                                photos[name] = raw
+                            }
                         }
                     }
+                    if (unpacked > MAX_BYTES) throw BackupException(BackupException.Reason.TOO_BIG)
                 }
             }
         } catch (e: BackupException) {
@@ -155,7 +165,37 @@ object BackupFile {
         val m = manifest ?: throw BackupException(BackupException.Reason.NOT_A_BACKUP)
         if (m.app != "RideCtrl") throw BackupException(BackupException.Reason.NOT_A_BACKUP)
         if (m.format > BackupManifest.FORMAT) throw BackupException(BackupException.Reason.NEWER)
+        if (!m.data.isConsistent()) throw BackupException(BackupException.Reason.DAMAGED)
         return ReadBackup(m, photos)
+    }
+
+    /** Reads one zip entry, refusing it once it unpacks to more than [limit] bytes. */
+    private fun readEntry(zip: ZipInputStream, limit: Long): ByteArray {
+        val out = ByteArrayOutputStream()
+        val buf = ByteArray(64 * 1024)
+        var total = 0L
+        while (true) {
+            val n = zip.read(buf)
+            if (n < 0) break
+            total += n
+            if (total > limit) throw BackupException(BackupException.Reason.TOO_BIG)
+            out.write(buf, 0, n)
+        }
+        return out.toByteArray()
+    }
+
+    /**
+     * A backup RideCtrl itself wrote always passes: every id is unique within its list and every photo is one of
+     * our own file names. Anything else is refused before it can replace the logs (duplicate ids would make
+     * lists misbehave, and odd photo names could point outside the photo folder).
+     */
+    private fun AppData.isConsistent(): Boolean {
+        fun unique(ids: List<String>) = ids.size == ids.toSet().size
+        return unique(vehicles.map { it.id }) && unique(fuel.map { it.id }) && unique(odometer.map { it.id }) &&
+            unique(trips.map { it.id }) && unique(serviceItems.map { it.id }) && unique(services.map { it.id }) &&
+            unique(parts.map { it.id }) && unique(mods.map { it.id }) && unique(temps.map { it.id }) &&
+            unique(docs.map { it.id }) && unique(notes.map { it.id }) &&
+            photoNames().all { safeName(it) }
     }
 
     /** Photo names are our own UUID file names; anything else (paths, "..") is ignored. */

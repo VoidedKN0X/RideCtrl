@@ -30,19 +30,15 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; tablet and foldable layout
 
-## Screenshots
-
-Coming soon.
-
 ## Requirements
 
 - Android 13 or newer, on a 64-bit ARM phone (nearly every phone from the last several years)
-- Permissions: notifications (for reminders) and run at startup (to re-arm the daily reminder check after a restart). **No internet**, no camera and no storage permission: photos come through Android's photo picker and your camera app
+- Permissions: notifications (for reminders), run at startup (to re-arm the daily reminder check after a restart) and biometrics (only for the optional fingerprint unlock). **No internet**, no camera and no storage permission: photos come through Android's photo picker and your camera app
 - **Google-free and de-Googled:** no Google Play services, Firebase or other Google libraries, and the app never contacts Google. It works the same on de-Googled phones (GrapheneOS, CalyxOS, /e/OS, LineageOS without Google apps).
 
 ## Install
 
-1. Download the latest `.apk` file from the [Releases page](https://github.com/VoidedKN0X/RideCtrl/releases/latest).
+1. Open the [latest release](https://github.com/VoidedKN0X/RideCtrl/releases/latest) on your phone, scroll down to **Assets** and tap the file that ends in `.apk` (for example `RideCtrl-v0.2.2.apk`). The "Source code" zip and tar.gz files are not the app; you don't need them.
 2. Open it on your phone. Android may ask you to allow installing apps from your browser or file manager.
 3. Updates install over the old version. Your data and settings are kept.
 
@@ -60,6 +56,30 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 3. Turn on reminders under **Settings > Reminders** (tap your profile picture, then **Settings**) and allow notifications.
 
 Settings, Backup and About are behind your profile picture at the top right of the Garage and Tools tabs.
+
+## Is it safe to install?
+
+- **Open source.** All of RideCtrl's code is in this repo, under the GPL-3.0 licence. Anyone can read it.
+- **Built by GitHub, not on a personal computer.** Every release on the Releases page is built by [the build workflow](.github/workflows/build.yml) on GitHub Actions, straight from the code in this repo. Each build also checks that the app has no network permission and no Google libraries.
+- **Always signed with the same key.** Android refuses to install an update signed with a different key over RideCtrl, and the CtrlF-Droid repo only accepts APKs signed with this key. The SHA-256 fingerprint of RideCtrl's signing certificate is:
+
+  ```
+  D5:45:BF:B0:15:26:B1:B6:46:E5:64:97:FC:11:5D:42:EA:90:D0:9C:11:86:D6:C2:69:5A:96:0B:1C:45:73:B8
+  ```
+
+  Advanced users can check it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
+
+**Permissions.** RideCtrl has **no internet permission**: it can't go online at all. It asks for only these:
+
+| Permission | What RideCtrl uses it for |
+| --- | --- |
+| Notifications | Reminders for maintenance that's due and documents about to expire. Android asks you first. |
+| Run at startup | Sets the once-a-day reminder check again after your phone restarts. |
+| Use biometric hardware | Optional fingerprint unlock for the app lock. |
+
+No camera, storage, location or contacts permission: photos come through Android's photo picker or your own camera app.
+
+See [Privacy](#privacy) for what happens to your data.
 
 ## Reminders on OPPO (ColorOS) and similar phones
 
@@ -93,7 +113,12 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 
 - Everything stays on your phone. RideCtrl is left out of Android's cloud backup and its phone-to-phone transfer, so nothing leaves the phone unless you make a backup or CSV file and choose where it goes.
 - Reminders are local notifications; on the lock screen they only say "RideCtrl reminder".
+- With the app lock on, the home-screen widget only says "Locked", reminders don't say what's due, and shortcuts, the widget and reminders open the lock screen first.
 - The Support, Report a bug, Source code and Licence links on the You page open in your browser, only when you tap them.
+
+## How RideCtrl is made
+
+RideCtrl is a one-person project by VoidedKN0X (VKNXWorks). Much of the code is written with the help of AI (Claude, by Anthropic). I decide what the app does, review the changes and use the app myself. Every change is listed in the [changelog](CHANGELOG.md), and you can read every line of code here.
 
 ## Build from source
 
@@ -115,7 +140,9 @@ Or open the folder in Android Studio and press **Run** with your phone connected
 
 ## Support the project
 
-RideCtrl is free and open source. If it's useful to you, you can support development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). In the app, tap your profile picture: **About** at the bottom of the You page has **Support RideCtrl** and **Report a bug**, which opens the [issue tracker](https://github.com/VoidedKN0X/RideCtrl/issues). Starring the repo helps too.
+RideCtrl is free and open source. If it's useful to you, you can support development on [GitHub Sponsors](https://github.com/sponsors/VoidedKN0X). In the app, tap your profile picture: **About** at the bottom of the You page has **Support RideCtrl** and **Report a bug**, which opens the [issue tracker](https://github.com/VoidedKN0X/RideCtrl/issues). Please report bugs and ideas with the [bug report and feature request forms](https://github.com/VoidedKN0X/RideCtrl/issues/new/choose). Starring the repo helps too.
+
+Found a security problem? Please don't open a public issue; see [SECURITY.md](SECURITY.md).
 
 ## The Ctrl series
 
@@ -139,7 +166,9 @@ Native Android apps for self-hosted services and everyday tools, all with the sa
 | [ProxCtrl](https://github.com/VoidedKN0X/ProxCtrl) | Manage your Proxmox VE server |
 | **RideCtrl** (this app) | Offline maintenance, fuel and mod log for your vehicles |
 | [SeerrCtrl](https://github.com/VoidedKN0X/SeerrCtrl) | Request movies and shows on Seerr / Jellyseerr |
+| [SynapseCtrl](https://github.com/VoidedKN0X/SynapseCtrl) | Administer your Matrix Synapse server |
 | [TrueCtrl](https://github.com/VoidedKN0X/TrueCtrl) | Monitor and manage your TrueNAS server |
+| [WrtCtrl](https://github.com/VoidedKN0X/WrtCtrl) | Manage your OpenWrt router |
 
 ## License
 

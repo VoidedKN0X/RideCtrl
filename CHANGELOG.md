@@ -4,6 +4,26 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.2 (2026-11-02)
+
+A security and safety update for the widget and for restoring backups, plus a new security policy and issue forms on GitHub.
+
+### Security
+
+- **The widget hides your data while the app lock is on.** Before, the home-screen widget kept showing the main vehicle's name, odometer and next maintenance item even with the app lock on. Now it only says "Locked" until you turn the lock off, and its buttons open RideCtrl's lock screen first. It updates as soon as you turn the lock on or off.
+- **Reminders don't say what's due while the app lock is on.** With the lock on, a reminder in the notification shade now only says "RideCtrl reminder" and "Something is due" (the lock screen already hid the details). Tap it and unlock to see which item or document it is.
+- **Safer restore from a backup file.** RideCtrl now refuses a backup whose contents unpack to far more than the file itself (a file built to fill up your phone's memory), and a backup with duplicate entries or odd photo names that RideCtrl never writes. Nothing on the phone changes when a file is refused. Backups made by RideCtrl restore exactly as before.
+
+### Fixed
+
+- **A huge km interval no longer closes the app.** A service item with an enormous km interval (for example a typo with many extra zeros) made the expected due date run off the end of the calendar, which crashed the Garage, the vehicle dashboard, the widget and the reminder check. The expected date is now capped at 100 years ahead.
+
+### Project
+
+- New [SECURITY.md](SECURITY.md): how to report a security problem privately, and the release key's fingerprint.
+- New issue forms on GitHub for bug reports and feature requests, with a private link for security problems.
+- README: a beginner-friendly install step (which file to tap on the Releases page), a new "Is it safe to install?" section with the signing fingerprint and every permission explained, "How RideCtrl is made", the full Ctrl series list, and the "Coming soon" screenshots section removed.
+
 ## v0.2.1 (2026-11-02)
 
 A fix for bottom sheets.

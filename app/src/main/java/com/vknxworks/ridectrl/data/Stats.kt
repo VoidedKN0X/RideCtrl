@@ -4,6 +4,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import kotlin.math.max
+import kotlin.math.min
 
 /** One known odometer value on a date, from any log. */
 data class OdoPoint(val date: LocalDate, val km: Double)
@@ -62,6 +63,8 @@ fun AppData.kmPerDay(vehicleId: String, today: LocalDate = LocalDate.now()): Dou
 
 enum class DueState { OK, SOON, OVERDUE, UNKNOWN }
 
+private const val MAX_PROJECTED_DAYS = 36_500.0
+
 data class Due(
     val item: ServiceItem,
     val lastDate: LocalDate?,
@@ -94,7 +97,8 @@ fun AppData.due(
     val nextKm = if (item.intervalKm != null && item.intervalKm > 0 && lastKm != null) lastKm + item.intervalKm else null
     val kmLeft = if (nextKm != null && current != null) nextKm - current else null
     val daysLeft = nextDate?.let { ChronoUnit.DAYS.between(today, it) }
-    val projected = if (kmLeft != null && perDay != null && perDay > 0.01) today.plusDays(max(0.0, kmLeft / perDay).toLong()) else null
+    // At most 100 years ahead: a huge km interval would otherwise overflow the date and crash the app.
+    val projected = if (kmLeft != null && perDay != null && perDay > 0.01) today.plusDays(min(max(0.0, kmLeft / perDay), MAX_PROJECTED_DAYS).toLong()) else null
     val projectedDays = projected?.let { ChronoUnit.DAYS.between(today, it) }
     val state = when {
         nextDate == null && nextKm == null -> DueState.UNKNOWN
