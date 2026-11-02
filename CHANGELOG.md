@@ -4,6 +4,19 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.1 (2026-11-02)
+
+A fix for bottom sheets.
+
+### Fixed
+
+- **Bottom sheets no longer show a stray grey box/outline.** Every bottom sheet (the pickers and option sheets) drew its 1dp grey border in the wrong place: a grey rectangle partway down the open sheet, cutting across the rows, and a stray rounded outline near the top of the screen. Material's bottom sheet applies an outside border before it moves the sheet into place, so the border stayed behind. The border is now gone: sheets are the plain surface colour with 26dp rounded top corners and no outline, and the dimmed background already sets them apart. Their colour, shape, drag handle, dimmed background and behaviour are unchanged.
+
+### Unchanged
+
+- Dialogs keep their 1dp border; they don't slide, so theirs was always drawn in the right place.
+- Checked everything else that slides or moves (the bottom tab bar's slide in/out and the app lock's PIN shake): their borders sit inside the moving content, so they were already correct.
+
 ## v0.2.0 (2026-10-31)
 
 RideCtrl is complete: every log, the premix calculator, reminders, costs, backup, the widget and shortcuts. Everything still stays on your phone, with no internet permission.
