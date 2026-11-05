@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
             // so Recents never shows what's behind the lock.
             val blankRecents = settings.hideRecents || c.vault.enabled
             // No overlays over the lock and PIN screens, and their content hidden from accessibility misuse.
-            GuardWindow(lockCovering(c.vault))
+            GuardWindow(lockCovering(c.vault), sensitive = true)
             LaunchedEffect(secure, blankRecents) {
                 if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                 else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)

@@ -4,6 +4,12 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.5 (2026-11-05)
+
+### Fixed
+
+- **Password managers can fill the backup password again.** Since 0.2.4 the backup password dialog, like the lock and PIN screens, was hidden from apps that use accessibility access without being an accessibility tool, which includes password managers that fill passwords that way. Now only the lock and PIN screens are hidden from them; the backup password dialog and the delete and restore confirmations work with those apps as before. Other apps' floating windows are still hidden over all of them, as in 0.2.4, and TalkBack works everywhere.
+
 ## v0.2.4 (2026-11-05)
 
 ### Security
