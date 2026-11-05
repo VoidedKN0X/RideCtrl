@@ -69,6 +69,12 @@ Settings, Backup and About are behind your profile picture at the top right of t
 
   Advanced users can check it with [AppVerifier](https://github.com/soupslurpr/AppVerifier).
 
+**Check a download.** Every release is built and published by GitHub Actions, never on a personal computer:
+
+- The release notes end with the APK's **SHA-256** checksum. Compare it with `sha256sum RideCtrl-vX.Y.Z.apk` (or `Get-FileHash` on Windows).
+- Each release APK has a signed **build provenance attestation**. With the [GitHub CLI](https://cli.github.com/), `gh attestation verify RideCtrl-vX.Y.Z.apk -R VoidedKN0X/RideCtrl` proves it was built by this repo's workflow from the tagged commit.
+- The signing-certificate fingerprint above stays the same for every release.
+
 **Permissions.** RideCtrl has **no internet permission**: it can't go online at all. It asks for only these:
 
 | Permission | What RideCtrl uses it for |
@@ -77,6 +83,7 @@ Settings, Backup and About are behind your profile picture at the top right of t
 | Run at startup | Sets the once-a-day reminder check again after your phone restarts. |
 | Use biometric hardware | Optional fingerprint unlock for the app lock. |
 | App-internal broadcasts (`com.vknxworks.ridectrl.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`) | Added by AndroidX so that only RideCtrl itself can send to its own internal receivers. It isn't something you grant and gives no access to anything. |
+| Hide other apps' floating windows over the PIN screen | While the lock or PIN screen, a backup password, or a delete, restore or reset confirmation is showing, other apps' floating windows (chat heads, overlays) are hidden over it, so nothing can cover or imitate it. No prompt; overlays work as usual everywhere else. |
 
 No camera, storage, location or contacts permission: photos come through Android's photo picker or your own camera app.
 
@@ -138,6 +145,8 @@ You need [Android Studio](https://developer.android.com/studio), or JDK 17 and t
 3. The APK is in `app/build/outputs/apk/debug/`. Copy it to your phone and install it.
 
 Or open the folder in Android Studio and press **Run** with your phone connected.
+
+**Dependency verification.** Every library and build plugin download is checked against the sha256 checksums in `gradle/verification-metadata.xml`, and the build fails on any mismatch. When you change a dependency, a plugin or the Gradle version, run the **Dependency verification metadata** workflow (Actions tab, *Run workflow*), check the diff of the file it prints and commit it in the same push.
 
 ## Support the project
 

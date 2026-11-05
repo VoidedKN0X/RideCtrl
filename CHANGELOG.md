@@ -4,6 +4,19 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.4 (2026-11-05)
+
+### Security
+
+- **No overlays over the lock screen and other sensitive screens.** While the lock screen, a PIN screen (turning the lock on or off, changing the PIN), "Forgot PIN?", the backup password dialog or a delete or restore confirmation is showing, other apps' floating windows (chat heads, screen overlays) are hidden over it, so no other app can cover it or put a fake screen on top. They come back as soon as that screen closes, and work as usual everywhere else. This uses a new install-time permission, "Hide other apps' floating windows"; there's no prompt.
+- **PIN and password screens hidden from accessibility misuse.** On Android 14 and newer, those same screens and dialogs are marked as sensitive, so apps that misuse accessibility access can't read them. Real accessibility tools such as TalkBack keep working.
+- **Stricter intents from other apps.** On Android 16 and newer, other apps can only open RideCtrl with an intent that really matches it. The Add fuel, Premix calculator and Add temp reading launcher shortcuts are now declared for this, so they, the widget and reminders work as before.
+
+### Project
+
+- **Checked dependencies:** every library and build plugin download is now checked against sha256 checksums in `gradle/verification-metadata.xml`, and the build fails on any mismatch.
+- **Verifiable releases:** this is the first release with a signed build provenance attestation and the APK's SHA-256 in the release notes. The README explains how to check a download with `gh attestation verify`.
+
 ## Project updates (2026-11-05, workflows)
 
 No new app version: these changes are to the repo's build workflows only.

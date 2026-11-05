@@ -16,12 +16,19 @@
          whether the phone has a strong fingerprint sensor. Without it the fingerprint option never shows. -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 
+    <!-- Hides other apps' floating windows over the lock and PIN screens, backup passwords and delete/restore
+         confirmations only. Install-time permission, no prompt. -->
+    <uses-permission android:name="android.permission.HIDE_OVERLAY_WINDOWS" />
+
+    <!-- intentMatchingFlags (Android 16+): other apps can only start RideCtrl's exported screen with an intent
+         that matches its filters (the launcher, and the launcher shortcuts' actions). -->
     <application
         android:name=".RideCtrlApp"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true"
+        android:intentMatchingFlags="enforceIntentFilter"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
@@ -37,6 +44,13 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- The launcher shortcuts' actions (res/xml/shortcuts.xml), so they match a filter. -->
+            <intent-filter>
+                <action android:name="com.vknxworks.ridectrl.ADD_FUEL" />
+                <action android:name="com.vknxworks.ridectrl.PREMIX" />
+                <action android:name="com.vknxworks.ridectrl.ADD_TEMP" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <!-- Launcher shortcuts: Add fuel, Premix calculator, Add temp reading. -->
             <meta-data

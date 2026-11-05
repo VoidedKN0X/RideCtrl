@@ -308,6 +308,7 @@ private fun PasswordDialog(title: String, body: String, confirmTwice: Boolean, o
             }, enabled = ok) { Text(stringResource(R.string.lock_ok)) }
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
+        guard = true,
     )
 }
 

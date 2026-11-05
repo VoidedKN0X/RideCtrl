@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.vknxworks.ridectrl.ui.lock.AppLockGate
+import com.vknxworks.ridectrl.ui.lock.GuardWindow
 import com.vknxworks.ridectrl.ui.lock.lockCovering
 import com.vknxworks.ridectrl.ui.nav.AppRoot
 import com.vknxworks.ridectrl.ui.theme.RideCtrlTheme
@@ -47,6 +48,8 @@ class MainActivity : ComponentActivity() {
             // "Hide in recent apps": a blank Recents card; screenshots still work. Always with the app lock on,
             // so Recents never shows what's behind the lock.
             val blankRecents = settings.hideRecents || c.vault.enabled
+            // No overlays over the lock and PIN screens, and their content hidden from accessibility misuse.
+            GuardWindow(lockCovering(c.vault))
             LaunchedEffect(secure, blankRecents) {
                 if (secure) window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
                 else window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)

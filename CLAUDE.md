@@ -12,6 +12,10 @@ Offline vehicle maintenance, fuel and mod log in the VKNXWorks Ctrl series. Kotl
 - Defaults must never be presented as manufacturer specs: service intervals and spec fields start blank or clearly as "your values".
 - Store everything metric (km, litres, °C); convert only for display and input. Number inputs accept both `,` and `.` as the decimal separator.
 
+## Dependency verification
+
+Gradle checks every library and plugin download against the sha256 checksums in `gradle/verification-metadata.xml` (checksums only, no PGP). When a dependency, plugin or the Gradle version changes, start the `verification-metadata.yml` workflow (`gh api -X POST repos/VoidedKN0X/RideCtrl/actions/workflows/verification-metadata.yml/dispatches -f ref=main`), take the file from its log (gzipped and base64-encoded between the BEGIN/END markers), check the diff (only Maven Central, Google's Maven and the Gradle plugin portal) and commit it in the same push. Never turn verification off or make it lenient.
+
 ## Releasing
 
 - A release is published only when `versionName` in `app/build.gradle.kts` is bumped. Bump `versionCode` by 1 at the same time.
