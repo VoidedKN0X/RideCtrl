@@ -4,6 +4,12 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.3 (2026-11-05)
+
+### Security
+
+- **Turning the app lock on now also hides reminders already in your notifications.** Reminders posted before you set a PIN kept showing what was due on which vehicle (for example "Oil change overdue" with the km and date) until you dismissed them. As soon as the lock is turned on they're replaced by the same "Something is due. Open RideCtrl to see what." text that reminders get while the lock is on, without the vehicle name. Tapping one still opens the same maintenance or documents screen, behind the lock.
+
 ## Project updates (2026-11-05)
 
 No new app version: these changes are to the repo, its build checks and its documentation only.

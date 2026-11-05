@@ -163,6 +163,37 @@ object Reminders {
             .build()
         nm.notify(key.hashCode(), n)
     }
+
+    /**
+     * The app lock was just turned on: reminders already in the shade still say what's due on which vehicle.
+     * Posts them again with the same generic text new ones get while locked; tapping one still opens the same screen.
+     */
+    fun hideDetails(context: Context) {
+        val nm = context.getSystemService(NotificationManager::class.java) ?: return
+        val active = runCatching { nm.activeNotifications }.getOrNull() ?: return
+        val public = Notification.Builder(context, CHANNEL)
+            .setSmallIcon(R.drawable.ic_stat_ride)
+            .setContentTitle(context.getString(R.string.reminder_public))
+            .build()
+        for (sbn in active) {
+            val old = sbn.notification
+            if (sbn.packageName != context.packageName || old.channelId != CHANNEL) continue
+            val text = context.getString(R.string.reminder_locked)
+            val n = Notification.Builder(context, CHANNEL)
+                .setSmallIcon(R.drawable.ic_stat_ride)
+                .setContentTitle(context.getString(R.string.reminder_public))
+                .setContentText(text)
+                .setStyle(Notification.BigTextStyle().bigText(text))
+                .setContentIntent(old.contentIntent)
+                .setAutoCancel(true)
+                .setVisibility(Notification.VISIBILITY_PRIVATE)
+                .setPublicVersion(public)
+                .setCategory(Notification.CATEGORY_REMINDER)
+                .setOnlyAlertOnce(true)
+                .build()
+            runCatching { nm.notify(sbn.tag, sbn.id, n) }.onFailure { nm.cancel(sbn.tag, sbn.id) }
+        }
+    }
 }
 
 /** The daily check, and re-arming after a reboot, an app update or a time change. */

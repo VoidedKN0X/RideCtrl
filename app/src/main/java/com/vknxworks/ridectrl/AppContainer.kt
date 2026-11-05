@@ -60,6 +60,8 @@ class AppContainer(val context: Context) {
         AppLock.markUnlocked()
         withContext(Dispatchers.Default) { vault.setUp(pin) }
         refreshWidget()
+        // Reminders posted before the lock still show what's due: post them again without the details.
+        runCatching { Reminders.hideDetails(context) }
     }
 
     /** Turns the app lock off (after the PIN was confirmed). */
