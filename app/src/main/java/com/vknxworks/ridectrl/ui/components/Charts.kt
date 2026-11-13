@@ -9,6 +9,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -71,6 +72,80 @@ fun LineChart(
         if (endLabel != null) {
             val t = measurer.measure(endLabel, style)
             drawText(t, topLeft = Offset(size.width - t.size.width, size.height - t.size.height))
+        }
+    }
+}
+
+/**
+ * Values over time on a canvas: the x axis is real time (so a gap of months looks like one), each point is
+ * one value, and a dashed line marks [average] with its label on the right. The highest and lowest values are
+ * labelled on the left, the first and last dates underneath.
+ */
+@Composable
+fun TimeChart(
+    points: List<Pair<java.time.LocalDate, Double>>,
+    modifier: Modifier = Modifier,
+    average: Double? = null,
+    averageLabel: String? = null,
+    labelFor: (Double) -> String = { it.toString() },
+    dateLabel: (java.time.LocalDate) -> String = { it.toString() },
+) {
+    if (points.isEmpty()) return
+    val sorted = points.sortedBy { it.first }
+    val line = CtrlColors.AccentText
+    val grid = CtrlColors.Outline
+    val muted = CtrlColors.Muted
+    val avgColor = CtrlColors.Text
+    val measurer = rememberTextMeasurer()
+    val style = CtrlType.Data.copy(color = muted)
+    val avgStyle = CtrlType.Data.copy(color = avgColor)
+    Canvas(modifier.fillMaxWidth().height(190.dp)) {
+        val values = sorted.map { it.second } + listOfNotNull(average)
+        val hi = values.max()
+        val lo = values.min()
+        // A little room above and below, so the dots and the average line don't sit on the frame.
+        val pad = ((hi - lo).takeIf { it > 0 } ?: (hi.coerceAtLeast(1.0) * 0.1)) * 0.08
+        val top0 = hi + pad
+        val bottom0 = lo - pad
+        val range = top0 - bottom0
+        val hiText = measurer.measure(labelFor(hi), style)
+        val loText = measurer.measure(labelFor(lo), style)
+        val left = max(hiText.size.width, loText.size.width) + 10f
+        val bottomPad = 22.dp.toPx()
+        val top = 8.dp.toPx()
+        val w = size.width - left - 6.dp.toPx()
+        val h = size.height - top - bottomPad
+        val firstDay = sorted.first().first.toEpochDay()
+        val span = (sorted.last().first.toEpochDay() - firstDay).toFloat()
+        fun y(v: Double) = top + h - ((v - bottom0) / range * h).toFloat()
+        fun x(d: java.time.LocalDate) = if (span <= 0f) left + w / 2 else left + w * ((d.toEpochDay() - firstDay) / span)
+        drawLine(grid, Offset(left, top), Offset(left + w, top), 1.dp.toPx())
+        drawLine(grid, Offset(left, top + h), Offset(left + w, top + h), 1.dp.toPx())
+        drawText(hiText, topLeft = Offset(0f, y(hi) - hiText.size.height / 2f))
+        drawText(loText, topLeft = Offset(0f, y(lo) - loText.size.height / 2f))
+        if (average != null) {
+            val ay = y(average)
+            drawLine(
+                avgColor.copy(alpha = 0.7f), Offset(left, ay), Offset(left + w, ay), 1.5.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(8.dp.toPx(), 6.dp.toPx())),
+            )
+            if (averageLabel != null) {
+                val t = measurer.measure(averageLabel, avgStyle, maxLines = 1)
+                val ty = (ay - t.size.height - 2.dp.toPx()).coerceAtLeast(0f)
+                drawText(t, topLeft = Offset(left + w - t.size.width, ty))
+            }
+        }
+        if (sorted.size > 1) {
+            val path = Path()
+            sorted.forEachIndexed { i, (d, v) -> if (i == 0) path.moveTo(x(d), y(v)) else path.lineTo(x(d), y(v)) }
+            drawPath(path, line, style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
+        sorted.forEach { (d, v) -> drawCircle(line, radius = 3.dp.toPx(), center = Offset(x(d), y(v))) }
+        val start = measurer.measure(dateLabel(sorted.first().first), style)
+        drawText(start, topLeft = Offset(left, size.height - start.size.height))
+        if (sorted.size > 1 && span > 0f) {
+            val end = measurer.measure(dateLabel(sorted.last().first), style)
+            drawText(end, topLeft = Offset(size.width - end.size.width, size.height - end.size.height))
         }
     }
 }

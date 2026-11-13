@@ -22,6 +22,9 @@ import com.vknxworks.ridectrl.data.daysLeft
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import com.vknxworks.ridectrl.data.AppData
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -69,14 +72,17 @@ object Reminders {
         am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, at, pi)
     }
 
-    /** Checks everything now and posts notifications for what changed. */
-    suspend fun check(context: Context) {
+    /**
+     * Checks everything now and posts notifications for what changed. [data] is the app's current data when it's
+     * running (just after a change), otherwise the saved file.
+     */
+    suspend fun check(context: Context, current: AppData? = null) = mutex.withLock {
         val settings = context.container.settings.current()
-        if (!settings.reminders) return
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
-        val nm = context.getSystemService(NotificationManager::class.java) ?: return
+        if (!settings.reminders) return@withLock
+        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return@withLock
+        val nm = context.getSystemService(NotificationManager::class.java) ?: return@withLock
         createChannel(context)
-        val data = LogRepository.read(context)
+        val data = current ?: LogRepository.read(context)
         val fmt = Fmt(settings)
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val sent = prefs.edit()
@@ -130,6 +136,9 @@ object Reminders {
         prefs.all.keys.filter { it !in live }.forEach { sent.remove(it) }
         sent.apply()
     }
+
+    /** The daily check and the check after a change never run at the same time (no double notifications). */
+    private val mutex = Mutex()
 
     private fun post(context: Context, nm: NotificationManager, key: String, vehicle: String, title: String, text: String, action: String) {
         val open = PendingIntent.getActivity(

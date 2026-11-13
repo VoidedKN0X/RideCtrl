@@ -228,6 +228,7 @@ private fun AppNavHost(navController: NavHostController) {
         composable<FuelRoute> { FuelScreen(it.toRoute<FuelRoute>().vehicleId) }
         composable<FuelEditRoute> { val r = it.toRoute<FuelEditRoute>(); FuelEditScreen(r.vehicleId, r.id) }
         composable<PremixRoute> { PremixScreen(it.toRoute<PremixRoute>().vehicleId) }
+        composable<EconomyRoute> { com.vknxworks.ridectrl.ui.fuel.EconomyScreen() }
 
         composable<MaintenanceRoute> { MaintenanceScreen(it.toRoute<MaintenanceRoute>().vehicleId) }
         composable<ServiceItemEditRoute> { val r = it.toRoute<ServiceItemEditRoute>(); ServiceItemEditScreen(r.vehicleId, r.id) }

@@ -14,10 +14,10 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 
 - **Works fully offline.** RideCtrl doesn't have the internet permission and never goes online. Everything stays on your phone
 - **Garage** with every vehicle (photo, make/model/year, engine type, plate, hidden VIN/frame number, purchase), each with its own **dashboard**: odometer, next maintenance, consumption, cost per km, last temperature, and quick-add for fuel, odometer, service, temperature and notes
-- **Fuel log** with consumption measured only between full tanks (L/100 km and km/L, or mpg), cost per km, monthly and yearly spend, and charts
+- **Fuel log** with consumption measured only between full tanks (L/100 km and km/L, or mpg), best and worst full-to-full, cost per km, monthly and yearly spend, and charts- **Fuel economy charts** over time with the average as a dashed line, per vehicle and for all your vehicles side by side, drawn by the app itself (no chart library)
 - **Premix calculator** made for the pump: 25:1, 32:1, 40:1, 50:1 or your own ratio, fuel to oil in ml and the reverse, remembering each vehicle's ratio and oil
 - **Maintenance** with your own intervals by km and/or time (a 2-stroke scooter list to start from, every interval blank, so nothing is passed off as a manufacturer figure), service records with parts, costs, who did it and photos, and an OK / soon / overdue list
-- **Reminders** as local notifications for maintenance (by date, and by km from your average riding) and document expiry
+- **Reminders** as local notifications for maintenance (by date, and by km: as soon as a logged odometer value reaches the limit, and ahead of time from your average riding) and document expiry
 - **Parts inventory** shared by every vehicle, with stock that follows the parts you use and a low-stock warning
 - **Mods log** with before and after photos and tuning results, and a **specs sheet** per vehicle where every value is yours, with its source
 - **Temperature log** for your gauge, with conditions and setup, a chart, and min/avg/max per setup to compare jetting or exhaust changes

@@ -19,6 +19,7 @@ import kotlinx.serialization.Serializable
 @Serializable data class FuelRoute(val vehicleId: String)
 @Serializable data class FuelEditRoute(val vehicleId: String, val id: String? = null)
 @Serializable data class PremixRoute(val vehicleId: String? = null)
+@Serializable data object EconomyRoute
 
 // Maintenance
 @Serializable data class MaintenanceRoute(val vehicleId: String)

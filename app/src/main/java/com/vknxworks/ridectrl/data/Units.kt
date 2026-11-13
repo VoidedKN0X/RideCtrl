@@ -99,9 +99,11 @@ class Fmt(val settings: AppSettings, private val locale: Locale = Locale.getDefa
     /** The number [consumption] shows (L/100 km, or mpg with miles), for charts. */
     fun consumptionValue(litresPer100km: Double): Double {
         if (settings.distance != DistanceUnit.MI || litresPer100km <= 0) return litresPer100km
-        val gal = if (settings.volume == VolumeUnit.UK_GALLON) LITRES_PER_UK_GAL else LITRES_PER_US_GAL
-        return 100.0 / litresPer100km * gal / KM_PER_MILE
+        return per100ToMpg(litresPer100km, imperial = settings.volume == VolumeUnit.UK_GALLON)
     }
+
+    /** True when a higher number is better (mpg); with L/100 km lower is better. */
+    val higherIsBetter: Boolean get() = settings.distance == DistanceUnit.MI
     val consumptionUnit: String get() = if (settings.distance == DistanceUnit.MI) "mpg" else "L/100 km"
 
     fun economy(litresPer100km: Double?): String? {

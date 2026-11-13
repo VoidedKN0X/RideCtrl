@@ -4,6 +4,24 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.3.0 (2026-11-13)
+
+Fuel economy charts, and mileage reminders that come as soon as you log the odometer.
+
+### New
+
+- **Fuel economy over time.** The consumption chart in each vehicle's fuel log now follows the calendar (a few quiet months look like a gap, not like the next fill), and a dashed line with its label shows the average. It uses your units: L/100 km, or mpg with miles (US or imperial gallons, as set).
+- **Best and worst full-to-full** next to the average and last consumption in the fuel log, each with its date.
+- **Fuel economy for every vehicle:** the chart button at the top of the Garage opens one page with each vehicle's average side by side, then each vehicle's consumption over time with its average, how many full-tank intervals it's based on and over what distance. Tap a vehicle to open its fuel log.
+
+### Changed
+
+- **Mileage reminders come right away.** When a fill, an odometer reading or anything else you log brings a service within its km limit (or past it), the reminder now arrives a few seconds later instead of at the next morning's daily check. Date reminders still come with the daily check, and each reminder still comes once per state (due soon, then overdue).
+
+### Fixed
+
+- **Fills logged without the odometer count towards consumption.** Consumption is still only measured from full tank to full tank, but a top-up you logged without the odometer reading between those two full tanks used to be left out, which made the consumption look better than it was. It now counts towards the interval it falls in (by date), once.
+
 ## v0.2.8 (2026-11-13)
 
 A small privacy and security update. Your logs, photos and backups work as before.

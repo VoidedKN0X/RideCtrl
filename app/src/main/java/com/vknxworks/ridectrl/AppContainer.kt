@@ -13,7 +13,9 @@ import com.vknxworks.ridectrl.ui.lock.AppLock
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -34,12 +36,21 @@ class AppContainer(val context: Context) {
     /** An action from a launcher shortcut or the widget, waiting for the UI to open it. */
     val pendingAction = MutableStateFlow<String?>(null)
 
+    private var reminderCheck: Job? = null
+
     init {
         // Reminders and the widget follow every change to the logs.
         logs.onChanged = {
             appScope.launch {
                 Reminders.schedule(context)
                 RideWidget.updateAll(context)
+            }
+            // A new odometer value (a fill, a reading, a trip) can reach a service's km limit: check right away,
+            // a few seconds after the last change, instead of waiting for the daily check.
+            reminderCheck?.cancel()
+            reminderCheck = appScope.launch {
+                delay(REMINDER_CHECK_DELAY_MS)
+                runCatching { Reminders.check(context, logs.data.value) }
             }
         }
         appScope.launch {
@@ -100,6 +111,8 @@ class AppContainer(val context: Context) {
         AppLock.onLocked = { onLocked() }
     }
 }
+
+private const val REMINDER_CHECK_DELAY_MS = 3_000L
 
 val Context.container: AppContainer
     get() = (applicationContext as RideCtrlApp).container

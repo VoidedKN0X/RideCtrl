@@ -34,6 +34,7 @@ import com.vknxworks.ridectrl.container
 import com.vknxworks.ridectrl.data.EngineType
 import com.vknxworks.ridectrl.data.FuelEntry
 import com.vknxworks.ridectrl.data.currentKm
+import com.vknxworks.ridectrl.data.economyRange
 import com.vknxworks.ridectrl.data.fuelStats
 import com.vknxworks.ridectrl.data.newId
 import com.vknxworks.ridectrl.data.oilFor
@@ -49,7 +50,6 @@ import com.vknxworks.ridectrl.ui.components.FieldHeading
 import com.vknxworks.ridectrl.ui.components.FieldNote
 import com.vknxworks.ridectrl.ui.components.FormScreen
 import com.vknxworks.ridectrl.ui.components.Group
-import com.vknxworks.ridectrl.ui.components.LineChart
 import com.vknxworks.ridectrl.ui.components.MessageView
 import com.vknxworks.ridectrl.ui.components.NumberInput
 import com.vknxworks.ridectrl.ui.components.ScreenTopBar
@@ -101,6 +101,13 @@ fun FuelScreen(vehicleId: String) {
                     { m -> StatTile(stringResource(R.string.stat_consumption), fmt.consumption(stats.avgPer100), m, sub = fmt.economy(stats.avgPer100)) },
                     { m -> StatTile(stringResource(R.string.fuel_last_fill_stat), fmt.consumption(stats.lastPer100), m, sub = fmt.economy(stats.lastPer100)) },
                 )
+                if (stats.segments.size >= 2) {
+                    val range = economyRange(stats.segments)!!
+                    StatRow(
+                        { m -> StatTile(stringResource(R.string.economy_best), fmt.consumption(range.best.litresPer100), m, sub = fmt.shortDate(range.best.to.date)) },
+                        { m -> StatTile(stringResource(R.string.economy_worst), fmt.consumption(range.worst.litresPer100), m, sub = fmt.shortDate(range.worst.to.date)) },
+                    )
+                }
                 StatRow(
                     { m -> StatTile(stringResource(R.string.stat_cost_per_km), fmt.moneyPerDistance(stats.costPerKm), m, sub = stringResource(R.string.fuel_cost_per_km_sub)) },
                     { m -> StatTile(stringResource(R.string.fuel_total), fmt.money(stats.totalCost), m, sub = fmt.volume(stats.totalLitres, 1)) },
@@ -117,15 +124,7 @@ fun FuelScreen(vehicleId: String) {
             if (stats.segments.size >= 2) {
                 item {
                     CtrlCard(Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 6.dp)) {
-                        SectionLabel(stringResource(R.string.fuel_chart_consumption, fmt.consumptionUnit))
-                        Spacer(Modifier.size(10.dp))
-                        val values = stats.segments.map { it.litresPer100 }
-                        LineChart(
-                            values.map { fmt.consumptionValue(it) },
-                            labelFor = { fmt.num(it, 1) },
-                            startLabel = fmt.shortDate(stats.segments.first().to.date),
-                            endLabel = fmt.shortDate(stats.segments.last().to.date),
-                        )
+                        EconomyCard(stats.segments, stats.avgPer100, fmt)
                     }
                 }
             }

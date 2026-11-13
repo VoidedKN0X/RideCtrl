@@ -151,11 +151,17 @@ fun FuelEntry.cost(): Double = (total ?: pricePerLitre?.let { it * litres } ?: 0
 
 /**
  * Consumption is only measured between two full tanks: everything poured after the first full fill, up to
- * and including the next full fill, was burnt over that distance. Fills without an odometer are skipped.
+ * and including the next full fill, was burnt over that distance. Partial fills before the first full fill,
+ * or after the last one, don't count until a full fill closes the interval.
+ *
+ * Fills logged without an odometer reading can't start or end an interval, but the fuel was still burnt:
+ * they count towards the interval whose dates they fall in (after the start fill's day, up to and including
+ * the end fill's day). An interval where the odometer didn't go up (a gauge swap) is left out.
  */
-fun AppData.fuelStats(vehicleId: String): FuelStats {
-    val entries = fuel.filter { it.vehicleId == vehicleId }
+fun fuelSegments(entries: List<FuelEntry>): List<FuelSegment> {
     val withOdo = entries.filter { it.odometer != null }.sortedWith(compareBy<FuelEntry> { it.odometer }.thenBy { it.date })
+    val withoutOdo = entries.filter { it.odometer == null }.mapNotNull { e -> parseDate(e.date)?.let { it to e } }
+    val claimed = HashSet<String>()
     val segments = mutableListOf<FuelSegment>()
     var lastFull: FuelEntry? = null
     var poured = 0.0
@@ -165,7 +171,16 @@ fun AppData.fuelStats(vehicleId: String): FuelStats {
             poured += e.litres
             if (e.fullTank) {
                 val km = e.odometer!! - start.odometer!!
-                if (km > 0) segments += FuelSegment(start, e, km, poured)
+                val from = parseDate(start.date)
+                val to = parseDate(e.date)
+                val extra = if (from != null && to != null) {
+                    withoutOdo.filter { (d, f) -> f.id !in claimed && d.isAfter(from) && !d.isAfter(to) }
+                        .onEach { claimed += it.second.id }
+                        .sumOf { it.second.litres }
+                } else {
+                    0.0
+                }
+                if (km > 0) segments += FuelSegment(start, e, km, poured + extra)
             }
         }
         if (e.fullTank) {
@@ -173,8 +188,34 @@ fun AppData.fuelStats(vehicleId: String): FuelStats {
             poured = 0.0
         }
     }
-    val segKm = segments.sumOf { it.km }
-    val segL = segments.sumOf { it.litres }
+    return segments
+}
+
+/** The average of full-to-full intervals, weighted by distance (total litres over total km), in L/100 km. */
+fun averagePer100(segments: List<FuelSegment>): Double? {
+    val km = segments.sumOf { it.km }
+    return if (km > 0) segments.sumOf { it.litres } / km * 100.0 else null
+}
+
+/** The most and least economical full-to-full intervals (lowest and highest L/100 km). */
+data class EconomyRange(val best: FuelSegment, val worst: FuelSegment)
+
+fun economyRange(segments: List<FuelSegment>): EconomyRange? {
+    val best = segments.minByOrNull { it.litresPer100 } ?: return null
+    val worst = segments.maxByOrNull { it.litresPer100 } ?: return null
+    return EconomyRange(best, worst)
+}
+
+/** L/100 km to miles per gallon (US or imperial gallons). Lower consumption is a higher mpg. */
+fun per100ToMpg(litresPer100km: Double, imperial: Boolean): Double {
+    val gal = if (imperial) LITRES_PER_UK_GAL else LITRES_PER_US_GAL
+    return 100.0 / litresPer100km * gal / KM_PER_MILE
+}
+
+fun AppData.fuelStats(vehicleId: String): FuelStats {
+    val entries = fuel.filter { it.vehicleId == vehicleId }
+    val withOdo = entries.filter { it.odometer != null }.sortedWith(compareBy<FuelEntry> { it.odometer }.thenBy { it.date })
+    val segments = fuelSegments(entries)
     val totalCost = entries.sumOf { it.cost() }
     val odoSpan = if (withOdo.size >= 2) withOdo.last().odometer!! - withOdo.first().odometer!! else 0.0
     // Cost per km: fuel bought between the first and last fill with an odometer, over that distance
@@ -184,7 +225,7 @@ fun AppData.fuelStats(vehicleId: String): FuelStats {
     val yearly = entries.groupBy { it.date.take(4) }.map { (k, v) -> k to v.sumOf { it.cost() } }.sortedBy { it.first }
     return FuelStats(
         segments = segments,
-        avgPer100 = if (segKm > 0) segL / segKm * 100.0 else null,
+        avgPer100 = averagePer100(segments),
         lastPer100 = segments.lastOrNull()?.litresPer100,
         totalLitres = entries.sumOf { it.litres },
         totalCost = totalCost,

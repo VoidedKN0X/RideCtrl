@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material.icons.outlined.TwoWheeler
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +45,7 @@ import com.vknxworks.ridectrl.ui.components.MessageView
 import com.vknxworks.ridectrl.ui.components.PhotoThumb
 import com.vknxworks.ridectrl.ui.components.TabTitle
 import com.vknxworks.ridectrl.ui.components.rememberFmt
+import com.vknxworks.ridectrl.ui.nav.EconomyRoute
 import com.vknxworks.ridectrl.ui.nav.LocalNavigator
 import com.vknxworks.ridectrl.ui.nav.VehicleEditRoute
 import com.vknxworks.ridectrl.ui.nav.VehicleRoute
@@ -85,6 +87,9 @@ fun GarageScreen() {
                     stringResource(R.string.tab_garage),
                     label = pluralStringResource(R.plurals.vehicle_count, vehicles.size, vehicles.size),
                 ) {
+                    if (data.fuel.isNotEmpty()) {
+                        CtrlSquareButton(Icons.AutoMirrored.Outlined.ShowChart, stringResource(R.string.economy_title), onClick = { nav.navigate(EconomyRoute) })
+                    }
                     CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.vehicle_add), onClick = { nav.navigate(VehicleEditRoute()) })
                 }
             }

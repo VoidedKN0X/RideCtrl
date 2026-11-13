@@ -205,6 +205,19 @@
     <string name="fuel_total">Total spent</string>
     <string name="fuel_need_two_full">Consumption shows after two full-tank fills with the odometer filled in.</string>
     <string name="fuel_chart_consumption">Consumption (%1$s)</string>
+    <string name="economy_title">Fuel economy</string>
+    <string name="economy_intro">Measured from full tank to full tank only, in %1$s. The dashed line is the average over all the distance.</string>
+    <string name="economy_compare">Average per vehicle (%1$s)</string>
+    <string name="economy_average">Average %1$s</string>
+    <string name="economy_avg_short">Average</string>
+    <string name="economy_best">Best full-to-full</string>
+    <string name="economy_worst">Worst full-to-full</string>
+    <string name="economy_empty_title">No fuel economy yet</string>
+    <string name="economy_empty_body">Log at least two full tanks with the odometer for a vehicle to see its consumption here.</string>
+    <plurals name="economy_intervals">
+        <item quantity="one">%1$d full-tank interval</item>
+        <item quantity="other">%1$d full-tank intervals</item>
+    </plurals>
     <string name="fuel_spend_monthly">Spend per month</string>
     <string name="fuel_spend_yearly">Spend per year</string>
     <string name="fuel_fills">Fills</string>
