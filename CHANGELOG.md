@@ -4,6 +4,19 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## v0.2.8 (2026-11-13)
+
+A small privacy and security update. Your logs, photos and backups work as before.
+
+### Privacy
+
+- **Camera originals are cleaned up straight away.** When you take a photo with the camera app, RideCtrl copies a downscaled version into its private photo folder. The camera's full-size original (which can carry location data) was left in the app's cache until the next photo; it's now deleted as soon as the photo is copied in, or right away when you cancel the camera.
+- **No debug logging in the app.** Release builds now strip debug, verbose and info log messages from the app and the libraries it uses, so nothing about your vehicles can end up in the phone's system log.
+
+### Security
+
+- **Checked build tools.** The build now checks the Gradle download against its published checksum, so a tampered build tool can't slip into a release.
+
 ## v0.2.7 (2026-11-12)
 
 ### Changed

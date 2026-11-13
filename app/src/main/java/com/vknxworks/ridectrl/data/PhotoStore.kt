@@ -45,6 +45,11 @@ class PhotoStore(private val context: Context) {
         return FileProvider.getUriForFile(context, "${context.packageName}.files", f)
     }
 
+    /** Removes the camera app's originals from the cache once they're copied in (or the capture was cancelled). */
+    fun clearCaptures() {
+        cameraDir.listFiles()?.forEach { it.delete() }
+    }
+
     fun delete(name: String) {
         file(name).delete()
     }

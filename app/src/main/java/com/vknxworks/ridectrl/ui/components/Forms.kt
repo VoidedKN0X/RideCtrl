@@ -481,17 +481,24 @@ fun PhotoStrip(label: String, photos: List<String>, onChange: (List<String>) -> 
     var viewing by remember { mutableStateOf<String?>(null) }
     var captureUri by remember { mutableStateOf<Uri?>(null) }
 
-    fun add(uri: Uri) {
+    fun add(uri: Uri, fromCamera: Boolean = false) {
         scope.launch {
-            val name = withContext(Dispatchers.IO) { store.import(uri) }
+            val name = withContext(Dispatchers.IO) {
+                store.import(uri).also {
+                    // The camera's full-size original isn't kept once the photo is copied in.
+                    if (fromCamera) store.clearCaptures()
+                }
+            }
             if (name != null) onChange(if (single) listOf(name) else photos + name)
         }
     }
 
-    val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let(::add) }
+    val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri -> uri?.let { add(it) } }
     val take = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok ->
         val uri = captureUri
-        if (ok && uri != null) add(uri)
+        captureUri = null
+        if (ok && uri != null) add(uri, fromCamera = true)
+        else scope.launch(Dispatchers.IO) { store.clearCaptures() }
     }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
