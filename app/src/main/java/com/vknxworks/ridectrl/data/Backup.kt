@@ -87,9 +87,11 @@ object BackupFile {
         if (password == null) {
             writeZip(out, manifest, data.photoNames(), readPhoto)
         } else {
-            val buf = ByteArrayOutputStream()
+            // AES-GCM seals the zip in one go, so it has to be in memory once; it's encrypted straight from the
+            // buffer it was written to and written out in parts, without the extra copies made before.
+            val buf = ZipBuffer()
             writeZip(buf, manifest, data.photoNames(), readPhoto)
-            out.write(encrypt(buf.toByteArray(), password))
+            encryptTo(out, buf.bytes(), buf.size(), password)
         }
     }
 
@@ -212,6 +214,26 @@ object BackupFile {
         } finally {
             spec.clearPassword()
         }
+    }
+
+    /** A byte buffer that hands out its own array instead of a copy ([size] says how much of it is used). */
+    private class ZipBuffer : ByteArrayOutputStream() {
+        fun bytes(): ByteArray = buf
+    }
+
+    /** Like [encrypt] for the first [length] bytes of [plain], written to [out] as header and sealed data, not joined first. */
+    private fun encryptTo(out: OutputStream, plain: ByteArray, length: Int, password: CharArray) {
+        val rnd = SecureRandom()
+        val salt = ByteArray(16).also(rnd::nextBytes)
+        val iv = ByteArray(12).also(rnd::nextBytes)
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, key(password, salt), GCMParameterSpec(128, iv))
+        cipher.updateAAD(MAGIC)
+        val sealed = cipher.doFinal(plain, 0, length)
+        out.write(MAGIC)
+        out.write(salt)
+        out.write(iv)
+        out.write(sealed)
     }
 
     fun encrypt(plain: ByteArray, password: CharArray): ByteArray {

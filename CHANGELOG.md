@@ -25,6 +25,7 @@ Not released yet: these changes are on `main` and come with the next version.
 ### Changed
 
 - **Photos scroll more smoothly.** Decoded thumbnails are kept in memory (up to an eighth of the app's memory, 48 MB at most), so a photo you scroll back to shows at once instead of being read and decoded again. Decoding still happens off the main thread. Full-screen photos aren't kept.
+- **Password-protected backups need less memory.** Making an encrypted backup kept several copies of the whole backup (every photo) in memory at once; two of those copies are gone. The backup file is exactly the same format as before and restores in every version. (The whole backup still has to fit in memory once while it's encrypted; that's how the encryption works.)
 - **The Garage does less work while you scroll.** The order of your vehicles, each vehicle's current odometer and what's due next are now worked out once per change to your logs or warning settings, instead of every time the list is redrawn. Nothing looks different.
 
 ### Removed
