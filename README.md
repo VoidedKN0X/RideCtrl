@@ -25,7 +25,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Documents** (insurance, registration, inspection…) with expiry dates and photos
 - **Costs:** total cost of ownership per vehicle, per category and per year, and cost per km
 - **Backup** to one file with every photo, optionally **encrypted** with a password; restore from it; **CSV export** for spreadsheets
-- **Home-screen widget** (odometer, next maintenance, Add fuel) and **app shortcuts** (Add fuel, Premix calculator, Add temp reading)
+- **App shortcuts** (Add fuel, Premix calculator, Add temp reading)
 - **Units your way:** km or miles, litres or gallons, °C or °F, and your currency, stored in metric so switching never changes your logs. Number fields take a comma or a period
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; tablet and foldable layout
@@ -121,7 +121,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 
 - Everything stays on your phone. RideCtrl is left out of Android's cloud backup and its phone-to-phone transfer, so nothing leaves the phone unless you make a backup or CSV file and choose where it goes.
 - Reminders are local notifications; on the lock screen they only say "RideCtrl reminder".
-- With the app lock on, the home-screen widget only says "Locked", reminders don't say what's due, and shortcuts, the widget and reminders open the lock screen first.
+- With the app lock on, reminders don't say what's due, and shortcuts and reminders open the lock screen first.
 - The Support, Report a bug, Source code and Licence links on the You page open in your browser, only when you tap them.
 
 ## How RideCtrl is made

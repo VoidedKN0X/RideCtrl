@@ -69,7 +69,7 @@ data class AppSettings(
     val warnDays: Int = 14,
     /** Warn this many km before a service item is due (stored in km). */
     val warnKm: Double = 300.0,
-    /** The vehicle the widget and shortcuts use; null means the first one. */
+    /** The vehicle the shortcuts use; null means the first one. */
     val mainVehicleId: String? = null,
 )
 
@@ -114,7 +114,7 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         mainVehicleId = this[K.mainVehicle]?.takeIf { it.isNotBlank() },
     )
 
-    /** The saved settings read straight from disk (reminder alarms and the widget run without the UI). */
+    /** The saved settings read straight from disk (reminder alarms run without the UI). */
     suspend fun current(): AppSettings = stored.first()
 
     /** Saves a change. If the phone's storage fails, the change is dropped instead of closing the app. */

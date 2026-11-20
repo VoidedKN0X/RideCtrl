@@ -172,7 +172,7 @@
     <string name="vehicle_delete_title">Delete this vehicle?</string>
     <string name="vehicle_delete_body">Its fuel log, services, mods, temperature readings, documents, notes and photos are deleted from this phone. Parts in your inventory stay.</string>
     <string name="vehicle_main">Main vehicle</string>
-    <string name="vehicle_main_sub">Shown first in the Garage, on the widget and by the shortcuts</string>
+    <string name="vehicle_main_sub">Shown first in the Garage and used by the shortcuts</string>
     <string name="odo_note_from_vehicle">Set on the vehicle</string>
 
     <!-- Dashboard -->
@@ -557,13 +557,7 @@
     <string name="reminder_public">RideCtrl reminder</string>
     <string name="reminder_locked">Something is due. Open RideCtrl to see what.</string>
 
-    <!-- Widget and shortcuts -->
-    <string name="widget_name">RideCtrl</string>
-    <string name="widget_description">Odometer and next maintenance, with Add fuel</string>
-    <string name="widget_no_vehicle">Add a vehicle in RideCtrl</string>
-    <string name="widget_nothing_due">Nothing due yet</string>
-    <string name="widget_next">Next</string>
-    <string name="widget_locked">Locked. Open RideCtrl to see your vehicles.</string>
+    <!-- Shortcuts -->
     <string name="shortcut_fuel_short">Add fuel</string>
     <string name="shortcut_premix_short">Premix</string>
     <string name="shortcut_temp_short">Temp reading</string>

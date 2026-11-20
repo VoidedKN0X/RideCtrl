@@ -255,7 +255,7 @@ private fun AppNavHost(navController: NavHostController) {
 }
 
 /**
- * Opens what a launcher shortcut, the widget or a reminder asked for ("fuel:<id>", "premix", "temp",
+ * Opens what a launcher shortcut or a reminder asked for ("fuel:<id>", "premix", "temp",
  * "maintenance:<id>"...). Shortcuts without a vehicle use the main vehicle.
  */
 @Composable

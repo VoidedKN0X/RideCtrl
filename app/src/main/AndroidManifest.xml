@@ -81,19 +81,6 @@
             </intent-filter>
         </receiver>
 
-        <!-- Home-screen widget: odometer, next maintenance and Add fuel. -->
-        <receiver
-            android:name=".widget.RideWidget"
-            android:exported="false"
-            android:label="@string/widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/ride_widget_info" />
-        </receiver>
-
         <!-- No downloadable emoji font: don't let androidx.emoji2 look one up from a font provider
              at start-up. Emoji are drawn with the phone's own emoji font instead. -->
         <provider

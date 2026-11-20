@@ -6,7 +6,6 @@ import com.vknxworks.ridectrl.data.LogRepository
 import com.vknxworks.ridectrl.data.PhotoStore
 import com.vknxworks.ridectrl.data.lock.LockVault
 import com.vknxworks.ridectrl.reminders.Reminders
-import com.vknxworks.ridectrl.widget.RideWidget
 import com.vknxworks.ridectrl.data.settings.AppSettings
 import com.vknxworks.ridectrl.data.settings.SettingsRepository
 import com.vknxworks.ridectrl.ui.lock.AppLock
@@ -33,18 +32,15 @@ class AppContainer(val context: Context) {
     val logs = LogRepository(context, appScope)
     val photos = PhotoStore(context)
 
-    /** An action from a launcher shortcut or the widget, waiting for the UI to open it. */
+    /** An action from a launcher shortcut or a reminder, waiting for the UI to open it. */
     val pendingAction = MutableStateFlow<String?>(null)
 
     private var reminderCheck: Job? = null
 
     init {
-        // Reminders and the widget follow every change to the logs.
+        // Reminders follow every change to the logs.
         logs.onChanged = {
-            appScope.launch {
-                Reminders.schedule(context)
-                RideWidget.updateAll(context)
-            }
+            appScope.launch { Reminders.schedule(context) }
             // A new odometer value (a fill, a reading, a trip) can reach a service's km limit: check right away,
             // a few seconds after the last change, instead of waiting for the daily check.
             reminderCheck?.cancel()
@@ -70,7 +66,6 @@ class AppContainer(val context: Context) {
         // Unlocked first, so the lock screen doesn't flash up while the PIN is being saved.
         AppLock.markUnlocked()
         withContext(Dispatchers.Default) { vault.setUp(pin) }
-        refreshWidget()
         // Reminders posted before the lock still show what's due: post them again without the details.
         runCatching { Reminders.hideDetails(context) }
     }
@@ -78,12 +73,6 @@ class AppContainer(val context: Context) {
     /** Turns the app lock off (after the PIN was confirmed). */
     fun disableLock() {
         vault.disable()
-        refreshWidget()
-    }
-
-    /** The widget hides its contents while the app lock is on, so it follows the lock being turned on or off. */
-    private fun refreshWidget() {
-        appScope.launch { runCatching { RideWidget.updateAll(context) } }
     }
 
     /**
@@ -96,7 +85,6 @@ class AppContainer(val context: Context) {
         settings.update { AppSettings() }
         vault.disable()
         AppLock.markUnlocked()
-        refreshWidget()
     }
 
     fun onLocked() {

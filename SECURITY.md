@@ -20,7 +20,7 @@ Only the latest release gets security fixes. Please update before reporting, and
 RideCtrl has no server and no internet permission: everything stays on your phone. So these count:
 
 - Any way for RideCtrl to send your data off the phone, or for your logs, photos or documents to end up somewhere you didn't choose
-- Ways around the app lock (including the widget, launcher shortcuts and reminders), or protected screens showing up in screenshots when they shouldn't
+- Ways around the app lock (including launcher shortcuts and reminders), or protected screens showing up in screenshots when they shouldn't
 - Another app on the phone being able to read RideCtrl's data or make RideCtrl do something you didn't ask for
 - A backup file that can make RideCtrl write files outside its own folders, crash it, or change your data without asking you first
 - Weaknesses in the encrypted backup or the app lock PIN

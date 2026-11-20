@@ -34,7 +34,7 @@ class LogRepository(context: Context, private val scope: CoroutineScope) {
     private val _ready = MutableStateFlow(false)
     val ready: StateFlow<Boolean> = _ready
 
-    /** Called after every change (reminders and the widget refresh from here). */
+    /** Called after every change (reminders refresh from here). */
     var onChanged: (AppData) -> Unit = {}
 
     init {
@@ -83,7 +83,7 @@ class LogRepository(context: Context, private val scope: CoroutineScope) {
             AppData()
         }
 
-        /** Reads the saved data without the app running (reminders, widget). */
+        /** Reads the saved data without the app running (reminders). */
         fun read(context: Context): AppData = load(File(context.filesDir, "data.json"))
     }
 }

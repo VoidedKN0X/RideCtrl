@@ -4,6 +4,14 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Not released yet: these changes are on `main` and come with the next version.
+
+### Removed
+
+- **The home-screen widget is gone.** The widget with the odometer, the next maintenance and the Add fuel button has been removed from RideCtrl, together with everything that kept it up to date in the background. A widget that's still on your home screen stops working after the update and can be removed. The launcher shortcuts (Add fuel, Premix calculator, Add temp reading) and the reminders stay as they are. RideCtrl never had a Quick Settings tile.
+
 ## v0.3.0 (2026-11-13)
 
 Fuel economy charts, and mileage reminders that come as soon as you log the odometer.

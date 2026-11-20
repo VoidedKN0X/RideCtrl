@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/** Shortcuts, the widget and reminders open RideCtrl with an action; the UI picks it up once unlocked. */
+/** Shortcuts and reminders open RideCtrl with an action; the UI picks it up once unlocked. */
 private fun MainActivity.handle(intent: Intent?) {
     val action = when (intent?.action) {
         "com.vknxworks.ridectrl.ADD_FUEL" -> "fuel"
