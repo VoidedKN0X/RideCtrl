@@ -434,7 +434,8 @@ fun PartUsesInput(label: String, parts: List<Part>, uses: List<PartUse>, onChang
 @Composable
 fun PhotoThumb(name: String, modifier: Modifier = Modifier, maxSide: Int = 512, onClick: (() -> Unit)? = null) {
     val photos = LocalContext.current.container.photos
-    val bitmap by produceState<Bitmap?>(null, name, maxSide) {
+    // A thumbnail that's already in memory shows at once; otherwise it's read and decoded off the main thread.
+    val bitmap by produceState<Bitmap?>(photos.cached(name, maxSide), name, maxSide) {
         value = withContext(Dispatchers.IO) { photos.thumbnail(name, maxSide) }
     }
     Box(

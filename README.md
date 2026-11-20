@@ -120,6 +120,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 **Telemetry-free.** RideCtrl has no analytics, crash reporting, usage stats or tracking of any kind. It has **no internet permission**, works fully offline and never connects to the internet. Every build checks that the app has no network permission and no Google libraries.
 
 - Everything stays on your phone. RideCtrl is left out of Android's cloud backup and its phone-to-phone transfer, so nothing leaves the phone unless you make a backup or CSV file and choose where it goes.
+- **Encrypted on the phone:** your logs and photos are stored encrypted (AES-256-GCM) with a key that's kept by the phone's secure hardware (Android Keystore, StrongBox when the phone has it) and can't be copied off the phone. It needs no PIN or fingerprint, so reminders keep working. Settings (units, currency, reminder options) are not encrypted. Backup and CSV files are ordinary files (the backup optionally encrypted with your password), so keep a backup: without this phone's key the encrypted files can't be read.
 - Reminders are local notifications; on the lock screen they only say "RideCtrl reminder".
 - With the app lock on, reminders don't say what's due, and shortcuts and reminders open the lock screen first.
 - The Support, Report a bug, Source code and Licence links on the You page open in your browser, only when you tap them.

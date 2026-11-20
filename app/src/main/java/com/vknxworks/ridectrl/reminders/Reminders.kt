@@ -15,7 +15,6 @@ import com.vknxworks.ridectrl.R
 import com.vknxworks.ridectrl.container
 import com.vknxworks.ridectrl.data.DueState
 import com.vknxworks.ridectrl.data.Fmt
-import com.vknxworks.ridectrl.data.LogRepository
 import com.vknxworks.ridectrl.data.dueList
 import com.vknxworks.ridectrl.data.state
 import com.vknxworks.ridectrl.data.daysLeft
@@ -82,7 +81,8 @@ object Reminders {
         if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return@withLock
         val nm = context.getSystemService(NotificationManager::class.java) ?: return@withLock
         createChannel(context)
-        val data = current ?: LogRepository.read(context)
+        // Saved logs that can't be opened: nothing to check (and nothing already sent is forgotten).
+        val data = current ?: context.container.logs.readSaved() ?: return@withLock
         val fmt = Fmt(settings)
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val sent = prefs.edit()

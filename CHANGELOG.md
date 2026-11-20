@@ -8,13 +8,28 @@ To publish a new version: bump `versionCode` and `versionName` in `app/build.gra
 
 Not released yet: these changes are on `main` and come with the next version.
 
-### Removed
+### Security
 
-- **The home-screen widget is gone.** The widget with the odometer, the next maintenance and the Add fuel button has been removed from RideCtrl, together with everything that kept it up to date in the background. A widget that's still on your home screen stops working after the update and can be removed. The launcher shortcuts (Add fuel, Premix calculator, Add temp reading) and the reminders stay as they are. RideCtrl never had a Quick Settings tile.
+- **Your logs and photos are now encrypted on the phone (first Ctrl app to try this).** Until now `data.json` (every vehicle, log, document and note, including plate and frame number) and the photos were ordinary files in RideCtrl's private folder, protected by Android's own storage encryption and app sandbox only. They are now also encrypted with AES-256-GCM. The key is 32 random bytes kept in memory while the app runs and stored in `data.key`, itself encrypted by an AES-256-GCM key in the Android Keystore (the phone's secure hardware, StrongBox when the phone has it) that can't be copied off the phone. It needs no PIN or fingerprint, so reminders keep working in the background, and it works the same with the app lock on or off. Everything in the app works as before; nothing new to set up. **Make a backup (Backup and export) before installing this build**, as with any change to how data is stored.
+- **What stays ordinary on purpose:** backup files (a normal zip, or password-encrypted if you choose that, exactly the same format as before, with normal JPEGs inside), CSV exports, and the settings (units, currency, reminder options).
+- **How your existing data is moved over, without a moment where it could be lost:**
+  - *The logs:* at the first start, `data.json` is read as before. An encrypted copy is written to a temporary file and flushed to storage, read back from storage, decrypted and compared byte for byte with the original. Only if it matches does it take the place of `data.json`, in one atomic rename. There is no separate "delete the old file" step, so at every instant there is exactly one complete, readable `data.json`: the old one or the new one.
+  - *The photos:* right after that, in the background, each photo is moved over the same way, one file at a time (encrypted copy, flushed, read back, compared, renamed over the original). Old and new photos work side by side, so you can use the app while it runs.
+  - *If anything fails* (no working Keystore, storage full, a copy that doesn't compare equal, a rename that fails), the temporary file is removed and the original file stays in use exactly as it was. RideCtrl then simply keeps working with ordinary files and tries again at the next start.
+  - *If the app is killed or the phone loses power halfway,* every file is either still the original or already the checked encrypted copy; the next start carries on with whatever is left. A leftover temporary file is overwritten or cleaned up.
+  - *Both kinds are always readable:* an encrypted file starts with the marker `RIDECTRL-REST1`; a file without it is read as an ordinary file.
+- **If the key is ever gone** (it lives in this phone's secure hardware, so that could only happen if Android's Keystore loses it), RideCtrl does not start empty and does not overwrite anything. It shows "Can't open your logs" with **Try again**, and leaves every file untouched; nothing is saved while that screen shows. **Start empty** (after a confirmation) sets the unreadable `data.json` and `data.key` aside under the names `data.json.unreadable` and `data.key.unreadable` instead of deleting them, so you can restore a backup. Reminders skip their check while the logs can't be opened.
+- **Going back to an older build:** RideCtrl 0.3.0 and older can't read the encrypted file; they set it aside as `data.json.unreadable` and show an empty garage. If that happens, don't add anything: install this build (or a newer one) again and it puts the file back by itself, as long as no new `data.json` was written in between. Otherwise restore your backup.
+- **An interrupted save is picked up again.** If the app died after writing a new `data.json.tmp` and before it replaced `data.json` (only possible on a file system that can't replace a file in one step), the complete temporary copy is now used at the next start instead of being ignored. Saves are also flushed to storage before they replace the old file.
 
 ### Changed
 
+- **Photos scroll more smoothly.** Decoded thumbnails are kept in memory (up to an eighth of the app's memory, 48 MB at most), so a photo you scroll back to shows at once instead of being read and decoded again. Decoding still happens off the main thread. Full-screen photos aren't kept.
 - **The Garage does less work while you scroll.** The order of your vehicles, each vehicle's current odometer and what's due next are now worked out once per change to your logs or warning settings, instead of every time the list is redrawn. Nothing looks different.
+
+### Removed
+
+- **The home-screen widget is gone.** The widget with the odometer, the next maintenance and the Add fuel button has been removed from RideCtrl, together with everything that kept it up to date in the background. A widget that's still on your home screen stops working after the update and can be removed. The launcher shortcuts (Add fuel, Premix calculator, Add temp reading) and the reminders stay as they are. RideCtrl never had a Quick Settings tile.
 
 ## v0.3.0 (2026-11-13)
 

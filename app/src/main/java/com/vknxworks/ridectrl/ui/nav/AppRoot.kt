@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.TwoWheeler
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,12 +33,14 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,7 +58,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vknxworks.ridectrl.container
 import com.vknxworks.ridectrl.ui.components.LocalBottomClearance
+import com.vknxworks.ridectrl.ui.components.ConfirmDialog
 import com.vknxworks.ridectrl.ui.components.CtrlBottomBar
+import com.vknxworks.ridectrl.ui.components.MessageView
 import com.vknxworks.ridectrl.ui.components.TabItem
 import com.vknxworks.ridectrl.ui.theme.CtrlColors
 import androidx.navigation.toRoute
@@ -85,16 +90,56 @@ import com.vknxworks.ridectrl.ui.parts.PartsScreen
 import com.vknxworks.ridectrl.ui.parts.SpecsScreen
 import com.vknxworks.ridectrl.ui.settings.BackupScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import com.vknxworks.ridectrl.ui.settings.SettingsScreen
 import com.vknxworks.ridectrl.ui.tools.ToolsScreen
 import com.vknxworks.ridectrl.ui.settings.YouScreen
 
 @Composable
 fun AppRoot() {
-    val ready by LocalContext.current.container.logs.ready.collectAsStateWithLifecycle()
+    val logs = LocalContext.current.container.logs
+    val ready by logs.ready.collectAsStateWithLifecycle()
+    val unreadable by logs.unreadable.collectAsStateWithLifecycle()
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         // The logs load from disk in a moment; screens read them as soon as they open.
-        if (ready) MainScaffold()
+        if (ready) {
+            if (unreadable) UnreadableLogs() else MainScaffold()
+        }
+    }
+}
+
+/**
+ * The saved logs are encrypted and can't be opened (the key in the phone's secure storage is gone or changed).
+ * Nothing was deleted or changed: say so, offer to try again, and only start empty when asked to, keeping
+ * the unreadable files aside.
+ */
+@Composable
+private fun UnreadableLogs() {
+    val logs = LocalContext.current.container.logs
+    val scope = rememberCoroutineScope()
+    var confirm by remember { mutableStateOf(false) }
+    Box(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
+        MessageView(
+            Icons.Outlined.Lock,
+            stringResource(R.string.unreadable_title),
+            stringResource(R.string.unreadable_body),
+            actionLabel = stringResource(R.string.unreadable_retry),
+            onAction = { logs.retry() },
+        )
+        TextButton(onClick = { confirm = true }, modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 16.dp)) {
+            Text(stringResource(R.string.unreadable_start_empty), color = CtrlColors.Muted)
+        }
+    }
+    if (confirm) {
+        ConfirmDialog(
+            title = stringResource(R.string.unreadable_start_empty_title),
+            body = stringResource(R.string.unreadable_start_empty_body),
+            confirm = stringResource(R.string.unreadable_start_empty),
+            onDismiss = { confirm = false },
+        ) {
+            confirm = false
+            scope.launch { logs.startEmpty(keep = true) }
+        }
     }
 }
 

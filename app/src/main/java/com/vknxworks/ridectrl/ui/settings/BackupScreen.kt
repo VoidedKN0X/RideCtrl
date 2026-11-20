@@ -55,7 +55,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.text.DateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -93,7 +92,7 @@ fun BackupScreen() {
             val ok = withContext(Dispatchers.IO) {
                 runCatching {
                     context.contentResolver.openOutputStream(uri, "wt")?.use { out ->
-                        BackupFile.write(out, c.logs.data.value, settings, c.photos.dir, pw)
+                        BackupFile.write(out, c.logs.data.value, settings, { name -> c.photos.read(name) }, pw)
                     } ?: error("no file")
                 }.isSuccess
             }
@@ -258,10 +257,10 @@ fun BackupScreen() {
             scope.launch {
                 withContext(Dispatchers.IO) {
                     // Photos first, then the data that refers to them; old photos go afterwards.
-                    backup.photos.forEach { (name, bytes) -> File(c.photos.dir, name).writeBytes(bytes) }
+                    backup.photos.forEach { (name, bytes) -> c.photos.write(name, bytes) }
                     c.logs.replaceAll(m.data)
                     val keep = m.data.photoNames()
-                    c.photos.dir.listFiles()?.forEach { if (it.name !in keep) it.delete() }
+                    c.photos.deleteExcept(keep)
                 }
                 c.settings.update { m.applyTo(it) }
                 busy = false

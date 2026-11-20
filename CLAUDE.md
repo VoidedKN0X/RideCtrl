@@ -12,6 +12,14 @@ Offline vehicle maintenance, fuel and mod log in the VKNXWorks Ctrl series. Kotl
 - Defaults must never be presented as manufacturer specs: service intervals and spec fields start blank or clearly as "your values".
 - Store everything metric (km, litres, °C); convert only for display and input. Number inputs accept both `,` and `.` as the decimal separator.
 
+## Encryption at rest
+
+- `data.json` and `photos/*.jpg` are sealed with AES-256-GCM (`data/crypto/SealedFile`, marker `RIDECTRL-REST1`) under the data key (`DataKeyStore`: 32 random bytes in `filesDir/data.key`, wrapped by the Keystore key `ridectrl_data_at_rest` through `KeystoreWrapper`/`KeystoreAes`; no user authentication, so reminders work in the background). Settings (DataStore) are not encrypted.
+- Readers must accept both sealed and ordinary files (`SealedFile.isSealed`). Without a data key the app reads and writes ordinary files as before.
+- Never delete or overwrite a file that can't be opened, never replace an existing `data.key`, and never create a Keystore key on the decrypt path (`KeystoreAes.existing`). An ordinary file only becomes a sealed one through `SealedFile.sealInPlace` (temp file, sync, read back, compare, atomic rename). Sealed logs that can't be opened put `LogRepository.unreadable` on: nothing is written and the UI shows the "Can't open your logs" screen.
+- Backups and CSV exports stay ordinary files in their existing formats (`PhotoStore.read` decrypts for the backup).
+- `SealedFileTest` covers the format, the migration step and the key rules (`./gradlew :app:testDebugUnitTest`).
+
 ## Dependency verification
 
 Gradle checks every library and plugin download against the sha256 checksums in `gradle/verification-metadata.xml` (checksums only, no PGP). When a dependency, plugin or the Gradle version changes, start the `verification-metadata.yml` workflow (`gh api -X POST repos/VoidedKN0X/RideCtrl/actions/workflows/verification-metadata.yml/dispatches -f ref=main`), take the file from its log (gzipped and base64-encoded between the BEGIN/END markers), check the diff (only Maven Central, Google's Maven and the Gradle plugin portal) and commit it in the same push. Never turn verification off or make it lenient.

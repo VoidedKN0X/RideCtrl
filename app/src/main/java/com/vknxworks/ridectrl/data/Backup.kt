@@ -7,7 +7,6 @@ import com.vknxworks.ridectrl.data.settings.VolumeUnit
 import kotlinx.serialization.Serializable
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.SecureRandom
@@ -70,7 +69,11 @@ object BackupFile {
     private const val MAX_JSON_BYTES = 64L * 1024 * 1024
     private const val MAX_PHOTO_BYTES = 64L * 1024 * 1024
 
-    fun write(out: OutputStream, data: AppData, settings: AppSettings, photosDir: File, password: CharArray?) {
+    /**
+     * Writes a backup. [readPhoto] gives a photo's JPEG bytes by file name (decrypted when it's encrypted at
+     * rest), or null when there's no such file; the backup holds ordinary JPEGs, as always.
+     */
+    fun write(out: OutputStream, data: AppData, settings: AppSettings, readPhoto: (String) -> ByteArray?, password: CharArray?) {
         val manifest = BackupManifest(
             created = System.currentTimeMillis(),
             data = data,
@@ -82,24 +85,24 @@ object BackupFile {
             warnKm = settings.warnKm,
         )
         if (password == null) {
-            writeZip(out, manifest, data.photoNames(), photosDir)
+            writeZip(out, manifest, data.photoNames(), readPhoto)
         } else {
             val buf = ByteArrayOutputStream()
-            writeZip(buf, manifest, data.photoNames(), photosDir)
+            writeZip(buf, manifest, data.photoNames(), readPhoto)
             out.write(encrypt(buf.toByteArray(), password))
         }
     }
 
-    private fun writeZip(out: OutputStream, manifest: BackupManifest, photos: Set<String>, photosDir: File) {
+    private fun writeZip(out: OutputStream, manifest: BackupManifest, photos: Set<String>, readPhoto: (String) -> ByteArray?) {
         val zip = ZipOutputStream(out)
         zip.putNextEntry(ZipEntry("ridectrl.json"))
         zip.write(dataJson.encodeToString(BackupManifest.serializer(), manifest).toByteArray())
         zip.closeEntry()
         photos.forEach { name ->
-            val f = File(photosDir, name)
-            if (f.exists() && safeName(name)) {
+            val bytes = if (safeName(name)) readPhoto(name) else null
+            if (bytes != null) {
                 zip.putNextEntry(ZipEntry("photos/$name"))
-                f.inputStream().use { it.copyTo(zip) }
+                zip.write(bytes)
                 zip.closeEntry()
             }
         }

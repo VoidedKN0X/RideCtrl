@@ -4,6 +4,8 @@ import android.content.Context
 import com.vknxworks.ridectrl.data.AppData
 import com.vknxworks.ridectrl.data.LogRepository
 import com.vknxworks.ridectrl.data.PhotoStore
+import com.vknxworks.ridectrl.data.crypto.DataKeyStore
+import com.vknxworks.ridectrl.data.crypto.KeystoreWrapper
 import com.vknxworks.ridectrl.data.lock.LockVault
 import com.vknxworks.ridectrl.reminders.Reminders
 import com.vknxworks.ridectrl.data.settings.AppSettings
@@ -29,8 +31,10 @@ class AppContainer(val context: Context) {
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, _ -> })
 
     val settings = SettingsRepository(context, appScope)
-    val logs = LogRepository(context, appScope)
-    val photos = PhotoStore(context)
+    /** The key that encrypts the logs and photos at rest; itself kept by the Android Keystore. */
+    private val dataKey = DataKeyStore(context.filesDir, KeystoreWrapper("ridectrl_data_at_rest"))
+    val logs = LogRepository(context, appScope, dataKey)
+    val photos = PhotoStore(context, dataKey)
 
     /** An action from a launcher shortcut or a reminder, waiting for the UI to open it. */
     val pendingAction = MutableStateFlow<String?>(null)
@@ -55,6 +59,8 @@ class AppContainer(val context: Context) {
             // Never with an empty store: if the data file couldn't be read, the photos must survive for a restore.
             val data = logs.data.value
             if (data.vehicles.isNotEmpty()) withContext(Dispatchers.IO) { photos.sweep(data.photoNames()) }
+            // Photos from before encryption at rest are sealed now, one by one. Not while the logs can't be opened.
+            if (!logs.unreadable.value) withContext(Dispatchers.IO) { runCatching { photos.sealAll() } }
         }
     }
 
@@ -80,8 +86,10 @@ class AppContainer(val context: Context) {
      * log, photo and setting on the phone is deleted and the lock turned off.
      */
     suspend fun forgetEverything() {
+        // Logs that couldn't even be opened go too (the file is deleted, not set aside).
+        logs.startEmpty(keep = false)
         logs.replaceAll(AppData())
-        withContext(Dispatchers.IO) { photos.dir.listFiles()?.forEach { it.delete() } }
+        withContext(Dispatchers.IO) { photos.deleteAll() }
         settings.update { AppSettings() }
         vault.disable()
         AppLock.markUnlocked()
