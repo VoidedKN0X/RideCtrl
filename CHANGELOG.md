@@ -15,6 +15,10 @@ Built and checked by CI only: nothing here has been run on a phone yet.
 ### Changed
 
 - **Log pages and their edit screens do less work while you type and scroll.** The lists of fills, services, parts, mods, odometer readings, trips, temperature readings, documents and notes were filtered and sorted again every time the page was redrawn, and the add/edit screens for fills, odometer readings, temperatures, services and mods looked up the current odometer or the matching parts again at every key press. That's now worked out once and only again when your logs change. Nothing looks different.
+- **Newer build tools and libraries; nothing changes in how RideCtrl looks or works.** RideCtrl is now built with the current stable toolchain: Android Gradle Plugin 8.11.1 → 9.5.1, Gradle 8.14.3 → 9.9.2, Kotlin 2.2.0 → 2.4.21 (with its Compose and serialization compiler plugins) and Compose BOM 2025.07.00 → 2026.09.00 (Compose 1.12.1, Material 3 1.4.0). The libraries move to the versions the newest Ctrl apps use: activity-compose 1.10.1 → 1.13.0, core-ktx 1.16.0 → 1.18.0, lifecycle 2.9.1 → 2.10.0, navigation-compose 2.9.1 → 2.9.8, datastore-preferences 1.1.7 → 1.3.0, kotlinx-serialization-json 1.9.0 → 1.13.0 and kotlinx-coroutines-android 1.10.2 → 1.11.0. No library was added, and the app is still Google-free (CI checks it).
+- **Compiled against the Android 17 SDK.** Compose 1.12 needs `compileSdk` 37, so that goes from 36 to 37. The Android versions RideCtrl runs on and targets are unchanged (`minSdk` 35, `targetSdk` 36), so Android treats the app exactly as before.
+- **The app is shrunk by a newer R8.** Android Gradle Plugin 9 compiles Kotlin itself (the separate Kotlin Android plugin is gone from the build files) and brings the R8 version that understands Kotlin 2.4. RideCtrl's own keep rules are unchanged. The newer R8 shrinks more strictly than the old one, so the release build needs a check on a phone before the next release.
+- The checksums Gradle verifies every download against (`gradle/verification-metadata.xml`) were regenerated on CI for the new versions. Built and checked by CI only; not yet run on a phone.
 
 ### Project
 
