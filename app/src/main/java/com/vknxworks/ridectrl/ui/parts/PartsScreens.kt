@@ -81,8 +81,8 @@ fun PartsScreen() {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val names = data.vehicles.associate { it.id to it.name }
-    val parts = data.parts.sortedWith(compareByDescending<Part> { it.isLow() }.thenBy { it.name.lowercase() })
+    val names = remember(data) { data.vehicles.associate { it.id to it.name } }
+    val parts = remember(data) { data.parts.sortedWith(compareByDescending<Part> { it.isLow() }.thenBy { it.name.lowercase() }) }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.parts_title)) {
@@ -205,7 +205,7 @@ fun ModsScreen(vehicleId: String) {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val mods = data.mods.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date }
+    val mods = remember(data, vehicleId) { data.mods.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date } }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.mods_title)) {
@@ -255,7 +255,7 @@ fun ModEditScreen(vehicleId: String, id: String?) {
     val fmt = rememberFmt()
     val data = c.logs.data.value
     val old = remember(id) { data.mods.firstOrNull { it.id == id } }
-    val parts = data.parts.filter { it.vehicleIds.isEmpty() || vehicleId in it.vehicleIds }
+    val parts = remember(data, vehicleId) { data.parts.filter { it.vehicleIds.isEmpty() || vehicleId in it.vehicleIds } }
 
     var date by rememberSaveable { mutableStateOf(old?.date ?: today()) }
     var odo by rememberSaveable { mutableStateOf(fmt.distanceInput(old?.odometer ?: if (old == null) data.currentKm(vehicleId) else null)) }

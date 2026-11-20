@@ -131,7 +131,7 @@ fun TempsScreen(vehicleId: String) {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val readings = data.temps.filter { it.vehicleId == vehicleId }.sortedBy { it.time }
+    val readings = remember(data, vehicleId) { data.temps.filter { it.vehicleId == vehicleId }.sortedBy { it.time } }
     val groups = remember(data) { data.tempGroups(vehicleId) }
 
     Column(Modifier.fillMaxSize()) {
@@ -204,7 +204,7 @@ fun TempEditScreen(vehicleId: String, id: String?) {
     val data = c.logs.data.value
     val old = remember(id) { data.temps.firstOrNull { it.id == id } }
     // A new reading starts with the setup of the last one, so readings group without retyping.
-    val lastSetup = data.temps.filter { it.vehicleId == vehicleId }.maxByOrNull { it.time }?.setup ?: ""
+    val lastSetup = remember(data, vehicleId) { data.temps.filter { it.vehicleId == vehicleId }.maxByOrNull { it.time }?.setup ?: "" }
 
     var time by rememberSaveable { mutableStateOf(old?.time ?: System.currentTimeMillis()) }
     var temp by rememberSaveable { mutableStateOf(fmt.tempInput(old?.tempC)) }
@@ -257,8 +257,8 @@ fun OdometerScreen(vehicleId: String) {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val readings = data.odometer.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date }
-    val trips = data.trips.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date }
+    val readings = remember(data, vehicleId) { data.odometer.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date } }
+    val trips = remember(data, vehicleId) { data.trips.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date } }
     val points = remember(data) { data.odoPoints(vehicleId) }
     val perDay = remember(data) { data.kmPerDay(vehicleId) }
 
@@ -325,7 +325,7 @@ fun OdometerEditScreen(vehicleId: String, id: String?) {
     val fmt = rememberFmt()
     val data = c.logs.data.value
     val old = remember(id) { data.odometer.firstOrNull { it.id == id } }
-    val current = data.currentKm(vehicleId)
+    val current = remember(data, vehicleId) { data.currentKm(vehicleId) }
 
     var date by rememberSaveable { mutableStateOf(old?.date ?: today()) }
     var km by rememberSaveable { mutableStateOf(fmt.distanceInput(old?.km)) }
@@ -390,7 +390,7 @@ fun DocsScreen(vehicleId: String) {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val docs = data.docs.filter { it.vehicleId == vehicleId }.sortedBy { it.expiry ?: "9999" }
+    val docs = remember(data, vehicleId) { data.docs.filter { it.vehicleId == vehicleId }.sortedBy { it.expiry ?: "9999" } }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.docs_title)) {
@@ -487,7 +487,7 @@ fun NotesScreen(vehicleId: String) {
     val nav = LocalNavigator.current
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val notes = data.notes.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date }
+    val notes = remember(data, vehicleId) { data.notes.filter { it.vehicleId == vehicleId }.sortedByDescending { it.date } }
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.notes_title)) {
             CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.note_add), onClick = { nav.navigate(NoteEditRoute(vehicleId)) })

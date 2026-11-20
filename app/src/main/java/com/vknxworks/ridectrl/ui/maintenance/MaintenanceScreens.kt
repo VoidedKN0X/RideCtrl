@@ -80,8 +80,10 @@ fun MaintenanceScreen(vehicleId: String) {
     val settings by c.settings.settings.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
     val due = remember(data, settings) { data.dueList(vehicleId, settings.warnDays, settings.warnKm) }
-    val records = data.services.filter { it.vehicleId == vehicleId }.sortedWith(compareByDescending<ServiceRecord> { it.date }.thenByDescending { it.odometer ?: 0.0 })
-    val itemNames = data.serviceItems.associate { it.id to it.name }
+    val records = remember(data, vehicleId) {
+        data.services.filter { it.vehicleId == vehicleId }.sortedWith(compareByDescending<ServiceRecord> { it.date }.thenByDescending { it.odometer ?: 0.0 })
+    }
+    val itemNames = remember(data) { data.serviceItems.associate { it.id to it.name } }
 
     Column(Modifier.fillMaxSize()) {
         ScreenTopBar(stringResource(R.string.maintenance_title)) {
@@ -229,8 +231,8 @@ fun ServiceEditScreen(vehicleId: String, id: String?, itemId: String?) {
     val fmt = rememberFmt()
     val data = c.logs.data.value
     val old = remember(id) { data.services.firstOrNull { it.id == id } }
-    val items = data.serviceItems.filter { it.vehicleId == vehicleId }
-    val parts = data.parts.filter { it.vehicleIds.isEmpty() || vehicleId in it.vehicleIds }
+    val items = remember(data, vehicleId) { data.serviceItems.filter { it.vehicleId == vehicleId } }
+    val parts = remember(data, vehicleId) { data.parts.filter { it.vehicleIds.isEmpty() || vehicleId in it.vehicleIds } }
 
     var date by rememberSaveable { mutableStateOf(old?.date ?: today()) }
     var odo by rememberSaveable { mutableStateOf(fmt.distanceInput(old?.odometer ?: if (old == null) data.currentKm(vehicleId) else null)) }

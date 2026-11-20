@@ -4,6 +4,18 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing here has been run on a phone yet.
+
+### Security
+
+- **CSV exports can't run as formulas in a spreadsheet.** A spreadsheet reads a cell that starts with `=`, `+`, `-` or `@` as a formula, so a note, station, shop, part name or vehicle name that happens to start like that could be calculated (or worse, run) instead of shown when you open an export. Text cells that start with `=`, `@`, a tab or a carriage return now get an apostrophe in front, which a spreadsheet shows as plain text. Text that starts with `+` or `-` gets one too, unless the whole cell is just a number (`-5`, `+3.2`), so numbers stay numbers. Number columns (odometer, litres, prices, temperatures, including negative ones) are written exactly as before. What you'll notice: a note like `- replaced the filter` is `'- replaced the filter` in the CSV file. Backups are not affected.
+
+### Changed
+
+- **Log pages and their edit screens do less work while you type and scroll.** The lists of fills, services, parts, mods, odometer readings, trips, temperature readings, documents and notes were filtered and sorted again every time the page was redrawn, and the add/edit screens for fills, odometer readings, temperatures, services and mods looked up the current odometer or the matching parts again at every key press. That's now worked out once and only again when your logs change. Nothing looks different.
+
 ## v0.4.0 (2026-11-20)
 
 **Make a backup (Backup and export) in your current version before you update.** This release encrypts your logs and photos on the phone, and an older version cannot read them afterwards. Built and checked by CI only: nothing in this release had been run on a phone when it was published.

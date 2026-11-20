@@ -74,7 +74,9 @@ fun FuelScreen(vehicleId: String) {
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
     val vehicle = data.vehicles.firstOrNull { it.id == vehicleId }
-    val entries = data.fuel.filter { it.vehicleId == vehicleId }.sortedWith(compareByDescending<FuelEntry> { it.date }.thenByDescending { it.odometer ?: 0.0 })
+    val entries = remember(data, vehicleId) {
+        data.fuel.filter { it.vehicleId == vehicleId }.sortedWith(compareByDescending<FuelEntry> { it.date }.thenByDescending { it.odometer ?: 0.0 })
+    }
     val stats = remember(data) { data.fuelStats(vehicleId) }
     var yearly by remember { mutableStateOf(false) }
 
@@ -200,7 +202,7 @@ fun FuelEditScreen(vehicleId: String, id: String?) {
     val shownPrice = if (lastTyped == "total" && totalV != null && volUser != null && volUser > 0) totalV / volUser else null
     val r = parseInt(ratio)?.takeIf { it in 10..200 }
     val odoKm = parseNumber(odo)?.let { fmt.userToKm(it) }
-    val current = data.currentKm(vehicleId)
+    val current = remember(data, vehicleId) { data.currentKm(vehicleId) }
     val goesBack = odoKm != null && current != null && old == null && odoKm < current
     val canSave = l != null && l > 0 && (odo.isBlank() || odoKm != null)
 
