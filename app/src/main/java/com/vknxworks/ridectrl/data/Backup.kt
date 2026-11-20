@@ -272,9 +272,11 @@ object CsvExport {
         val s = when (v) {
             null -> ""
             is Double -> if (v % 1.0 == 0.0) v.toLong().toString() else v.toString()
+            // Text you typed (and the column names): never let a spreadsheet read it as a formula.
+            is String -> CsvCells.neutralise(v)
             else -> v.toString()
         }
-        return if (s.any { it == ',' || it == '"' || it == '\n' || it == '\r' }) "\"" + s.replace("\"", "\"\"") + "\"" else s
+        return CsvCells.quote(s)
     }
 
     private fun row(vararg v: Any?): String = v.joinToString(",") { cell(it) }
