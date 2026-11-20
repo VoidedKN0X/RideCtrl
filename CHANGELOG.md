@@ -12,6 +12,10 @@ Not released yet: these changes are on `main` and come with the next version.
 
 - **The home-screen widget is gone.** The widget with the odometer, the next maintenance and the Add fuel button has been removed from RideCtrl, together with everything that kept it up to date in the background. A widget that's still on your home screen stops working after the update and can be removed. The launcher shortcuts (Add fuel, Premix calculator, Add temp reading) and the reminders stay as they are. RideCtrl never had a Quick Settings tile.
 
+### Changed
+
+- **The Garage does less work while you scroll.** The order of your vehicles, each vehicle's current odometer and what's due next are now worked out once per change to your logs or warning settings, instead of every time the list is redrawn. Nothing looks different.
+
 ## v0.3.0 (2026-11-13)
 
 Fuel economy charts, and mileage reminders that come as soon as you log the odometer.

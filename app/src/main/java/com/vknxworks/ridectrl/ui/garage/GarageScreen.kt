@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -61,7 +62,9 @@ fun GarageScreen() {
     val data by c.logs.data.collectAsStateWithLifecycle()
     val settings by c.settings.settings.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
-    val vehicles = data.vehicles.sortedWith(compareByDescending<Vehicle> { it.id == settings.mainVehicleId }.thenBy { it.created })
+    val vehicles = remember(data.vehicles, settings.mainVehicleId) {
+        data.vehicles.sortedWith(compareByDescending<Vehicle> { it.id == settings.mainVehicleId }.thenBy { it.created })
+    }
 
     Column(Modifier.fillMaxSize().statusBarsPadding()) {
         if (vehicles.isEmpty()) {
@@ -95,7 +98,11 @@ fun GarageScreen() {
             }
             val first = vehicles.first()
             item(key = "hero-${first.id}") {
-                val due = data.dueList(first.id, settings.warnDays, settings.warnKm).firstOrNull { it.state != DueState.UNKNOWN }
+                // Worked out once per change to the logs or the warning settings, not on every recomposition.
+                val due = remember(data, first.id, settings.warnDays, settings.warnKm) {
+                    data.dueList(first.id, settings.warnDays, settings.warnKm).firstOrNull { it.state != DueState.UNKNOWN }
+                }
+                val firstKm = remember(data, first.id) { data.currentKm(first.id) }
                 CtrlHeroCard(
                     label = listOfNotNull(first.make.ifBlank { null }, first.model.ifBlank { null }, first.year?.toString()).joinToString(" ").ifBlank { stringResource(R.string.vehicle) },
                     meta = first.plate.ifBlank { null },
@@ -105,7 +112,7 @@ fun GarageScreen() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(first.name, style = MaterialTheme.typography.headlineMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                            Text(fmt.distance(data.currentKm(first.id)), style = CtrlType.Readout)
+                            Text(fmt.distance(firstKm), style = CtrlType.Readout)
                         }
                         if (first.photo != null) {
                             Spacer(Modifier.width(12.dp))
@@ -128,7 +135,10 @@ fun GarageScreen() {
                     )
                 }
                 items(vehicles.drop(1), key = { "vehicle-${it.id}" }) { v ->
-                    val worst = data.dueList(v.id, settings.warnDays, settings.warnKm).firstOrNull()?.state ?: DueState.UNKNOWN
+                    val worst = remember(data, v.id, settings.warnDays, settings.warnKm) {
+                        data.dueList(v.id, settings.warnDays, settings.warnKm).firstOrNull()?.state ?: DueState.UNKNOWN
+                    }
+                    val km = remember(data, v.id) { data.currentKm(v.id) }
                     CtrlCard(
                         Modifier.fillMaxWidth().padding(horizontal = Gutter, vertical = 5.dp),
                         onClick = { nav.navigate(VehicleRoute(v.id)) },
@@ -142,7 +152,7 @@ fun GarageScreen() {
                             Spacer(Modifier.width(14.dp))
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                 Text(v.name, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(fmt.distance(data.currentKm(v.id)), style = CtrlType.Data, color = CtrlColors.Muted)
+                                Text(fmt.distance(km), style = CtrlType.Data, color = CtrlColors.Muted)
                             }
                             if (worst == DueState.SOON || worst == DueState.OVERDUE) DueTag(worst)
                         }
