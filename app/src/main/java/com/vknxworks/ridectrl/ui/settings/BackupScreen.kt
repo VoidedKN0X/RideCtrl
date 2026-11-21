@@ -14,6 +14,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Backup
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.ui.res.pluralStringResource
+import com.vknxworks.ridectrl.backup.AutoBackup
+import com.vknxworks.ridectrl.data.settings.AutoBackupEvery
+import com.vknxworks.ridectrl.ui.components.GroupChoice
+import com.vknxworks.ridectrl.ui.components.GroupSwitch
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.LocalGasStation
@@ -158,6 +165,45 @@ fun BackupScreen() {
         }
     }
 
+    // ---------------------------------------------------------------- automatic backups
+    val settings by c.settings.settings.collectAsStateWithLifecycle()
+    var autoStatus by remember { mutableStateOf(AutoBackup.status(context)) }
+    var autoHasPassword by remember { mutableStateOf(AutoBackup.hasPassword(context)) }
+    var askAutoPassword by remember { mutableStateOf(false) }
+
+    fun reschedule() {
+        c.appScope.launch { runCatching { AutoBackup.schedule(context) } }
+    }
+
+    val pickFolder = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val flags = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val ok = runCatching { context.contentResolver.takePersistableUriPermission(uri, flags) }.isSuccess
+        if (!ok) {
+            toast(R.string.auto_backup_folder_failed)
+            return@rememberLauncherForActivityResult
+        }
+        val old = settings.autoBackupFolder
+        scope.launch {
+            c.settings.update { it.copy(autoBackupFolder = uri.toString(), autoBackup = if (it.autoBackup == AutoBackupEvery.OFF) AutoBackupEvery.WEEKLY else it.autoBackup) }
+            // The old folder's access isn't needed any more.
+            if (old != null && old != uri.toString()) {
+                runCatching { context.contentResolver.releasePersistableUriPermission(android.net.Uri.parse(old), flags) }
+            }
+            reschedule()
+        }
+    }
+
+    fun backUpNow() {
+        busy = true
+        scope.launch {
+            val problem = withContext(Dispatchers.IO) { AutoBackup.runIfDue(context, force = true) }
+            busy = false
+            autoStatus = AutoBackup.status(context)
+            if (problem == null) toast(R.string.backup_saved)
+        }
+    }
+
     fun startBackup(encrypted: Boolean) {
         AppLock.expectReturn()
         val date = LocalDate.now().toString()
@@ -203,6 +249,58 @@ fun BackupScreen() {
                     },
                 )
             }
+            Group(stringResource(R.string.auto_backup_group), footer = autoFooter(autoStatus, settings.autoBackupFolder != null)) {
+                GroupRow(
+                    stringResource(R.string.auto_backup_folder),
+                    settings.autoBackupFolder?.let { folderName(it) } ?: stringResource(R.string.auto_backup_folder_none),
+                    Icons.Outlined.Folder,
+                    showChevron = true,
+                    onClick = {
+                        AppLock.expectReturn()
+                        pickFolder.launch(null)
+                    },
+                )
+                if (settings.autoBackupFolder != null) {
+                    GroupChoice(
+                        stringResource(R.string.auto_backup_every),
+                        AutoBackupEvery.entries.map { it to stringResource(it.label) },
+                        settings.autoBackup,
+                        icon = Icons.Outlined.Schedule,
+                    ) { every ->
+                        scope.launch {
+                            c.settings.update { it.copy(autoBackup = every) }
+                            reschedule()
+                        }
+                    }
+                    GroupChoice(
+                        stringResource(R.string.auto_backup_keep),
+                        listOf(3, 5, 10, 20).map { it to pluralStringResource(R.plurals.auto_backup_keep_n, it, it) },
+                        settings.autoBackupKeep,
+                        icon = Icons.Outlined.Inventory2,
+                        fallbackLabel = pluralStringResource(R.plurals.auto_backup_keep_n, settings.autoBackupKeep, settings.autoBackupKeep),
+                    ) { n -> scope.launch { c.settings.update { it.copy(autoBackupKeep = n) } } }
+                    GroupSwitch(
+                        stringResource(R.string.auto_backup_encrypt),
+                        stringResource(R.string.auto_backup_encrypt_sub),
+                        checked = autoHasPassword,
+                        icon = Icons.Outlined.Lock,
+                    ) { on ->
+                        if (on) {
+                            askAutoPassword = true
+                        } else {
+                            AutoBackup.clearPassword(context)
+                            autoHasPassword = false
+                        }
+                    }
+                    GroupRow(
+                        stringResource(R.string.auto_backup_now),
+                        null,
+                        Icons.Outlined.Backup,
+                        showChevron = true,
+                        onClick = { if (!busy) backUpNow() },
+                    )
+                }
+            }
             Group(stringResource(R.string.csv_group), footer = stringResource(R.string.csv_footer)) {
                 GroupRow(stringResource(R.string.csv_fuel), null, Icons.Outlined.LocalGasStation, showChevron = true, onClick = { exportCsv(CsvExport.Log.FUEL, "fuel") })
                 GroupRow(stringResource(R.string.csv_services), null, Icons.Outlined.Build, showChevron = true, onClick = { exportCsv(CsvExport.Log.SERVICES, "services") })
@@ -222,6 +320,23 @@ fun BackupScreen() {
             askEncrypt = false
             password = pw
             startBackup(true)
+        }
+    }
+
+    if (askAutoPassword) {
+        PasswordDialog(
+            title = stringResource(R.string.auto_backup_password_title),
+            body = stringResource(R.string.auto_backup_password_body, MIN_PASSWORD),
+            confirmTwice = true,
+            onDismiss = { askAutoPassword = false },
+        ) { pw ->
+            askAutoPassword = false
+            scope.launch {
+                val ok = withContext(Dispatchers.IO) { AutoBackup.setPassword(context, pw) }
+                pw.fill('\u0000')
+                autoHasPassword = ok
+                if (!ok) toast(R.string.auto_backup_password_failed)
+            }
         }
     }
 
@@ -327,3 +442,29 @@ private fun PasswordField(label: String, value: String, onChange: (String) -> Un
     )
 }
 
+/** The folder's own name from its document tree address ("primary:Backups/RideCtrl" shows as "Backups/RideCtrl"). */
+private fun folderName(uri: String): String = runCatching {
+    val id = android.provider.DocumentsContract.getTreeDocumentId(android.net.Uri.parse(uri))
+    id.substringAfter(':').ifBlank { id }
+}.getOrDefault(uri)
+
+/** What the last automatic backup did, under the group. */
+@Composable
+private fun autoFooter(status: AutoBackup.Status, hasFolder: Boolean): String {
+    val fmt = { t: Long -> DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(t)) }
+    val parts = mutableListOf(stringResource(R.string.auto_backup_footer))
+    if (hasFolder) {
+        parts += status.lastOk?.let { stringResource(R.string.auto_backup_last, fmt(it)) } ?: stringResource(R.string.auto_backup_never)
+        status.problem?.let { p ->
+            parts += stringResource(
+                when (p) {
+                    AutoBackup.Problem.NO_FOLDER, AutoBackup.Problem.FOLDER_GONE -> R.string.auto_backup_problem_folder
+                    AutoBackup.Problem.LOGS_UNREADABLE -> R.string.auto_backup_problem_logs
+                    AutoBackup.Problem.NO_PASSWORD -> R.string.auto_backup_problem_password
+                    AutoBackup.Problem.WRITE_FAILED -> R.string.auto_backup_problem_write
+                },
+            )
+        }
+    }
+    return parts.joinToString("\n")
+}

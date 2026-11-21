@@ -18,6 +18,7 @@ class RideCtrlApp : Application() {
         // Reminders: the notification channel, and the next daily check (also after an update).
         Reminders.createChannel(this)
         container.appScope.launch { runCatching { Reminders.schedule(this@RideCtrlApp) } }
+        container.appScope.launch { runCatching { com.vknxworks.ridectrl.backup.AutoBackup.schedule(this@RideCtrlApp) } }
         // The app lock: locks after the chosen time away ("Lock again").
         ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onStart(owner: LifecycleOwner) {

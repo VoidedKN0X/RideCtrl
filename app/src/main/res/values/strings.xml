@@ -723,4 +723,31 @@
     <string name="report_services">Services</string>
     <string name="report_mods">Mods</string>
     <string name="report_tyres">Tyres fitted</string>
+    <!-- Automatic backups -->
+    <string name="auto_backup_group">Automatic backups</string>
+    <string name="auto_backup_folder">Backup folder</string>
+    <string name="auto_backup_folder_none">Pick a folder to turn automatic backups on</string>
+    <string name="auto_backup_folder_failed">RideCtrl can\'t keep access to that folder. Pick another one.</string>
+    <string name="auto_backup_every">How often</string>
+    <string name="auto_backup_off">Off</string>
+    <string name="auto_backup_daily">Every day</string>
+    <string name="auto_backup_weekly">Every week</string>
+    <string name="auto_backup_keep">Keep</string>
+    <plurals name="auto_backup_keep_n">
+        <item quantity="one">The newest %d backup</item>
+        <item quantity="other">The newest %d backups</item>
+    </plurals>
+    <string name="auto_backup_encrypt">Encrypt with a password</string>
+    <string name="auto_backup_encrypt_sub">Automatic backups are encrypted like an \"Encrypted backup\". The password is kept on this phone, encrypted.</string>
+    <string name="auto_backup_password_title">Password for automatic backups</string>
+    <string name="auto_backup_password_body">At least %1$d characters. You need it to restore these backups: write it down somewhere safe.</string>
+    <string name="auto_backup_password_failed">The password couldn\'t be saved securely on this phone. Automatic backups stay unencrypted.</string>
+    <string name="auto_backup_now">Back up now</string>
+    <string name="auto_backup_footer">The same file as \"Back up to a file\", made by itself during the night into your folder. Only RideCtrl\'s own automatic backups (RideCtrl-auto-…) are removed when there are more than you keep. Restore one with Restore from a file.</string>
+    <string name="auto_backup_last">Last automatic backup: %1$s</string>
+    <string name="auto_backup_never">No automatic backup made yet.</string>
+    <string name="auto_backup_problem_folder">The last try failed: the folder can\'t be reached any more. Pick it again.</string>
+    <string name="auto_backup_problem_logs">The last try was skipped: your logs can\'t be opened.</string>
+    <string name="auto_backup_problem_password">The last try failed: the saved password couldn\'t be read. Turn encryption off and on again.</string>
+    <string name="auto_backup_problem_write">The last try failed while writing the file.</string>
 </resources>

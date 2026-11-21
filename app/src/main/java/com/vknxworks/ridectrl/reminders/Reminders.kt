@@ -215,6 +215,10 @@ class ReminderReceiver : BroadcastReceiver() {
                     runCatching { Reminders.check(context) }
                 }
                 runCatching { Reminders.schedule(context) }
+                // Automatic backups are re-armed with the reminders (after a restart, an update or a clock change).
+                if (intent.action != "com.vknxworks.ridectrl.CHECK_REMINDERS") {
+                    runCatching { com.vknxworks.ridectrl.backup.AutoBackup.schedule(context) }
+                }
             } finally {
                 pending.finish()
             }

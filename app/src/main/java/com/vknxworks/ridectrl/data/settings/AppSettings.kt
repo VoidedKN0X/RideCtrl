@@ -51,6 +51,13 @@ enum class TempUnit(@StringRes val label: Int, @StringRes val short: Int) {
     FAHRENHEIT(R.string.unit_f_long, R.string.unit_f),
 }
 
+/** How often the automatic backup runs. */
+enum class AutoBackupEvery(@StringRes val label: Int, val days: Int) {
+    OFF(R.string.auto_backup_off, 0),
+    DAILY(R.string.auto_backup_daily, 1),
+    WEEKLY(R.string.auto_backup_weekly, 7),
+}
+
 data class AppSettings(
     val distance: DistanceUnit = DistanceUnit.KM,
     val volume: VolumeUnit = VolumeUnit.LITRE,
@@ -71,6 +78,10 @@ data class AppSettings(
     val warnKm: Double = 300.0,
     /** The vehicle the shortcuts use; null means the first one. */
     val mainVehicleId: String? = null,
+    /** Automatic backups: how often, into which folder (a document tree you picked), and how many to keep. */
+    val autoBackup: AutoBackupEvery = AutoBackupEvery.OFF,
+    val autoBackupFolder: String? = null,
+    val autoBackupKeep: Int = 5,
 )
 
 class SettingsRepository(private val context: Context, scope: CoroutineScope) {
@@ -86,6 +97,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         val warnDays = stringPreferencesKey("warn_days")
         val warnKm = stringPreferencesKey("warn_km")
         val mainVehicle = stringPreferencesKey("main_vehicle")
+        val autoBackup = stringPreferencesKey("auto_backup")
+        val autoBackupFolder = stringPreferencesKey("auto_backup_folder")
+        val autoBackupKeep = stringPreferencesKey("auto_backup_keep")
     }
 
     /** The saved settings; if the settings file can't be read, the defaults instead of a crash. */
@@ -112,6 +126,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
         warnDays = this[K.warnDays]?.toIntOrNull()?.coerceIn(0, 365) ?: 14,
         warnKm = this[K.warnKm]?.toDoubleOrNull()?.coerceIn(0.0, 100_000.0) ?: 300.0,
         mainVehicleId = this[K.mainVehicle]?.takeIf { it.isNotBlank() },
+        autoBackup = enumOr(this[K.autoBackup], AutoBackupEvery.OFF),
+        autoBackupFolder = this[K.autoBackupFolder]?.takeIf { it.isNotBlank() },
+        autoBackupKeep = this[K.autoBackupKeep]?.toIntOrNull()?.coerceIn(1, 50) ?: 5,
     )
 
     /** The saved settings read straight from disk (reminder alarms run without the UI). */
@@ -133,6 +150,9 @@ class SettingsRepository(private val context: Context, scope: CoroutineScope) {
                 p[K.warnDays] = s.warnDays.toString()
                 p[K.warnKm] = s.warnKm.toString()
                 if (s.mainVehicleId != null) p[K.mainVehicle] = s.mainVehicleId else p.remove(K.mainVehicle)
+                p[K.autoBackup] = s.autoBackup.name
+                if (s.autoBackupFolder != null) p[K.autoBackupFolder] = s.autoBackupFolder else p.remove(K.autoBackupFolder)
+                p[K.autoBackupKeep] = s.autoBackupKeep.toString()
             }
         } catch (e: IOException) {
             // Nothing to do: the settings stay as they were.

@@ -81,6 +81,11 @@
             </intent-filter>
         </receiver>
 
+        <!-- Automatic backups: the nightly check whether one is due (re-armed by the receiver above). -->
+        <receiver
+            android:name=".backup.AutoBackupReceiver"
+            android:exported="false" />
+
         <!-- No downloadable emoji font: don't let androidx.emoji2 look one up from a font provider
              at start-up. Emoji are drawn with the phone's own emoji font instead. -->
         <provider

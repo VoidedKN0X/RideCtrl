@@ -32,7 +32,7 @@ class AppContainer(val context: Context) {
 
     val settings = SettingsRepository(context, appScope)
     /** The key that encrypts the logs and photos at rest; itself kept by the Android Keystore. */
-    private val dataKey = DataKeyStore(context.filesDir, KeystoreWrapper("ridectrl_data_at_rest"))
+    val dataKey = DataKeyStore(context.filesDir, KeystoreWrapper("ridectrl_data_at_rest"))
     val logs = LogRepository(context, appScope, dataKey)
     val photos = PhotoStore(context, dataKey)
 
@@ -90,7 +90,9 @@ class AppContainer(val context: Context) {
         logs.startEmpty(keep = false)
         logs.replaceAll(AppData())
         withContext(Dispatchers.IO) { photos.deleteAll() }
+        com.vknxworks.ridectrl.backup.AutoBackup.clearPassword(context)
         settings.update { AppSettings() }
+        runCatching { com.vknxworks.ridectrl.backup.AutoBackup.schedule(context) }
         vault.disable()
         AppLock.markUnlocked()
     }
