@@ -17,11 +17,11 @@ import com.vknxworks.ridectrl.R
 import com.vknxworks.ridectrl.container
 import com.vknxworks.ridectrl.data.EngineType
 import com.vknxworks.ridectrl.data.OdometerReading
-import com.vknxworks.ridectrl.data.SCOOTER_TEMPLATE
+import com.vknxworks.ridectrl.data.hasStarterList
+import com.vknxworks.ridectrl.data.starterListFor
 import com.vknxworks.ridectrl.data.ServiceItem
 import com.vknxworks.ridectrl.data.Vehicle
 import com.vknxworks.ridectrl.data.currentKm
-import com.vknxworks.ridectrl.data.isTwoStroke
 import com.vknxworks.ridectrl.data.newId
 import com.vknxworks.ridectrl.data.parseInt
 import com.vknxworks.ridectrl.data.parseNumber
@@ -107,9 +107,9 @@ fun VehicleEditScreen(id: String?) {
                 if (km != null && km != d.currentKm(vid)) {
                     n = n.copy(odometer = n.odometer + OdometerReading(newId(), vid, today(), km, context.getString(R.string.odo_note_from_vehicle)))
                 }
-                if (isNew && template && engine.isTwoStroke) {
+                if (isNew && template && engine.hasStarterList) {
                     n = n.copy(
-                        serviceItems = n.serviceItems + SCOOTER_TEMPLATE.map { (nameRes, noteRes) ->
+                        serviceItems = n.serviceItems + starterListFor(engine).map { (nameRes, noteRes) ->
                             ServiceItem(newId(), vid, context.getString(nameRes), notes = noteRes?.let { context.getString(it) } ?: "")
                         },
                     )
@@ -137,8 +137,13 @@ fun VehicleEditScreen(id: String?) {
             NumberInput(stringResource(R.string.vehicle_odometer), odo, { odo = it }, Modifier.weight(1f), suffix = fmt.distanceUnit)
         }
         ChoiceInput(stringResource(R.string.vehicle_engine), EngineType.entries.map { it to engineLabel(it) }, engine) { engine = it }
-        if (isNew && engine.isTwoStroke) {
-            SwitchInput(stringResource(R.string.vehicle_template), template, stringResource(R.string.vehicle_template_sub)) { template = it }
+        if (isNew && engine.hasStarterList) {
+            val four = engine == EngineType.FOUR_STROKE
+            SwitchInput(
+                stringResource(if (four) R.string.vehicle_template_4t else R.string.vehicle_template),
+                template,
+                stringResource(if (four) R.string.vehicle_template_4t_sub else R.string.vehicle_template_sub),
+            ) { template = it }
         }
         if (engine == EngineType.TWO_STROKE_PREMIX) {
             FieldHeading(stringResource(R.string.premix_title))

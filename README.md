@@ -16,7 +16,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Garage** with every vehicle (photo, make/model/year, engine type, plate, hidden VIN/frame number, purchase), each with its own **dashboard**: odometer, next maintenance, consumption, cost per km, last temperature, and quick-add for fuel, odometer, service, temperature and notes
 - **Fuel log** with consumption measured only between full tanks (L/100 km and km/L, or mpg), best and worst full-to-full, cost per km, monthly and yearly spend, and charts- **Fuel economy charts** over time with the average as a dashed line, per vehicle and for all your vehicles side by side, drawn by the app itself (no chart library)
 - **Premix calculator** made for the pump: 25:1, 32:1, 40:1, 50:1 or your own ratio, fuel to oil in ml and the reverse, remembering each vehicle's ratio and oil
-- **Maintenance** with your own intervals by km and/or time (a 2-stroke scooter list to start from, every interval blank, so nothing is passed off as a manufacturer figure), service records with parts, costs, who did it and photos, and an OK / soon / overdue list
+- **Maintenance** with your own intervals by km and/or time (a 2-stroke and a 4-stroke scooter list to start from, every interval blank, so nothing is passed off as a manufacturer figure), service records with parts, costs, who did it and photos, and an OK / soon / overdue list
 - **Reminders** as local notifications for maintenance (by date, and by km: as soon as a logged odometer value reaches the limit, and ahead of time from your average riding) and document expiry
 - **Parts inventory** shared by every vehicle, with stock that follows the parts you use and a low-stock warning
 - **Mods log** with before and after photos and tuning results, and a **specs sheet** per vehicle where every value is yours, with its source
@@ -51,7 +51,7 @@ If the Obtainium button doesn't open the app, add `https://github.com/VoidedKN0X
 
 ## Getting started
 
-1. On the **Garage** tab, tap **+** and add your vehicle. For a 2-stroke, keep **Start with the scooter service list** on, then fill in your own intervals under **Maintenance**.
+1. On the **Garage** tab, tap **+** and add your vehicle. For a 2-stroke, keep **Start with the scooter service list** on (for a 4-stroke, **Start with the 4-stroke scooter service list**), then fill in your own intervals under **Maintenance**.
 2. Log fills with **Fuel** on the dashboard. Fill up to the top and mark **Filled up**: consumption shows from the second full fill.
 3. Turn on reminders under **Settings > Reminders** (tap your profile picture, then **Settings**) and allow notifications.
 

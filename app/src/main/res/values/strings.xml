@@ -159,6 +159,8 @@
     <string name="engine_electric">Electric</string>
     <string name="vehicle_template">Start with the scooter service list</string>
     <string name="vehicle_template_sub">Spark plug, belt, rollers, clutch, gear oil, filters, brakes, tyres, carb, decoke, cables and battery. Every interval starts blank: you fill in your own.</string>
+    <string name="vehicle_template_4t">Start with the 4-stroke scooter service list</string>
+    <string name="vehicle_template_4t_sub">Engine oil, oil strainer, valve clearance, spark plug, belt, rollers, clutch, gear oil, filters, brakes, tyres, carb, cables and battery. Every interval starts blank: you fill in your own.</string>
     <string name="vehicle_ratio">Premix ratio</string>
     <string name="vehicle_oil">2-stroke oil</string>
     <string name="vehicle_papers">Plate and frame</string>
@@ -254,6 +256,8 @@
     <string name="maintenance_empty_title">No service items</string>
     <string name="maintenance_empty_body">Add the things you service, with your own intervals, or start from the 2-stroke scooter list (every interval blank).</string>
     <string name="maintenance_add_template">Add the scooter list</string>
+    <string name="maintenance_empty_body_4t">Add the things you service, with your own intervals, or start from the 4-stroke scooter list (every interval blank).</string>
+    <string name="maintenance_add_template_4t">Add the 4-stroke list</string>
     <string name="maintenance_intro">Soon means within %1$d days or %2$s, counting your average riding. Intervals are your own, not manufacturer figures.</string>
     <string name="maintenance_items">Service items</string>
     <string name="maintenance_history">Service history</string>
@@ -312,6 +316,11 @@
     <string name="tpl_decoke">Exhaust decoke</string>
     <string name="tpl_cables">Cable lubrication</string>
     <string name="tpl_battery">Battery</string>
+    <string name="tpl_engine_oil">Engine oil change</string>
+    <string name="tpl_engine_oil_note">Check the level on the dipstick between changes.</string>
+    <string name="tpl_oil_strainer">Oil strainer screen clean</string>
+    <string name="tpl_valve_clearance">Valve clearance check / adjust</string>
+    <string name="tpl_valve_clearance_note">Check with the engine cold. Keep your clearances in the specs sheet.</string>
 
     <!-- Parts -->
     <string name="parts_title">Parts inventory</string>

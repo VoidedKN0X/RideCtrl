@@ -4,6 +4,14 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+Built and checked by CI only: nothing here has been run on a phone yet.
+
+### New
+
+- **A 4-stroke starting list for maintenance, next to the 2-stroke one.** When you add a vehicle with the engine set to 4-stroke, you can now start with **the 4-stroke scooter service list**: engine oil change, oil strainer screen clean, valve clearance check / adjust, spark plug, drive belt, variator rollers and sliders, clutch, gear oil, air and fuel filter, front and rear brakes, brake fluid, both tyres, carburettor and cables, and battery. It fits GY6-type scooters. Like the 2-stroke list, every interval starts blank so nothing is presented as a manufacturer figure; you fill in your own. A 4-stroke vehicle with no service items yet also offers **Add the 4-stroke list** on its Maintenance page (other vehicles keep the 2-stroke list).
+
 ## v0.5.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published. It is the first release built with the new build tools (Android Gradle Plugin 9, stricter code shrinking), so update over your installed version and check that your data and settings are still there.

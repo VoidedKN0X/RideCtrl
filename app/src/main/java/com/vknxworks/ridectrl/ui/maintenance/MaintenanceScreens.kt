@@ -33,7 +33,8 @@ import com.vknxworks.ridectrl.data.AppData
 import com.vknxworks.ridectrl.data.DoneBy
 import com.vknxworks.ridectrl.data.DueState
 import com.vknxworks.ridectrl.data.PartUse
-import com.vknxworks.ridectrl.data.SCOOTER_TEMPLATE
+import com.vknxworks.ridectrl.data.EngineType
+import com.vknxworks.ridectrl.data.starterListFor
 import com.vknxworks.ridectrl.data.ServiceItem
 import com.vknxworks.ridectrl.data.ServiceRecord
 import com.vknxworks.ridectrl.data.currentKm
@@ -91,14 +92,17 @@ fun MaintenanceScreen(vehicleId: String) {
             CtrlSquareButton(Icons.Outlined.Add, stringResource(R.string.service_add), onClick = { nav.navigate(ServiceEditRoute(vehicleId)) })
         }
         if (due.isEmpty() && records.isEmpty()) {
+            // A 4-stroke gets the 4-stroke list; every other vehicle the 2-stroke scooter list, as before.
+            val engine = data.vehicles.firstOrNull { it.id == vehicleId }?.engine ?: EngineType.TWO_STROKE_PREMIX
+            val four = engine == EngineType.FOUR_STROKE
             MessageView(
                 Icons.Outlined.Build,
                 stringResource(R.string.maintenance_empty_title),
-                stringResource(R.string.maintenance_empty_body),
-                actionLabel = stringResource(R.string.maintenance_add_template),
+                stringResource(if (four) R.string.maintenance_empty_body_4t else R.string.maintenance_empty_body),
+                actionLabel = stringResource(if (four) R.string.maintenance_add_template_4t else R.string.maintenance_add_template),
                 onAction = {
                     c.logs.update { d ->
-                        d.copy(serviceItems = d.serviceItems + SCOOTER_TEMPLATE.map { (n, note) -> ServiceItem(newId(), vehicleId, context.getString(n), notes = note?.let { context.getString(it) } ?: "") })
+                        d.copy(serviceItems = d.serviceItems + starterListFor(engine).map { (n, note) -> ServiceItem(newId(), vehicleId, context.getString(n), notes = note?.let { context.getString(it) } ?: "") })
                     }
                 },
             )

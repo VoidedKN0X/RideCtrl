@@ -245,6 +245,38 @@ val SCOOTER_TEMPLATE: List<Pair<Int, Int?>> = listOf(
     com.vknxworks.ridectrl.R.string.tpl_battery to null,
 )
 
+/**
+ * The editable 4-stroke scooter starting list (GY6-type engines: oil in the crankcase, screw-and-locknut valve
+ * adjustment, a CVT like the 2-stroke). Every interval is blank: the user fills in their own.
+ */
+val FOUR_STROKE_TEMPLATE: List<Pair<Int, Int?>> = listOf(
+    com.vknxworks.ridectrl.R.string.tpl_engine_oil to com.vknxworks.ridectrl.R.string.tpl_engine_oil_note,
+    com.vknxworks.ridectrl.R.string.tpl_oil_strainer to null,
+    com.vknxworks.ridectrl.R.string.tpl_valve_clearance to com.vknxworks.ridectrl.R.string.tpl_valve_clearance_note,
+    com.vknxworks.ridectrl.R.string.tpl_spark_plug to null,
+    com.vknxworks.ridectrl.R.string.tpl_drive_belt to null,
+    com.vknxworks.ridectrl.R.string.tpl_variator to null,
+    com.vknxworks.ridectrl.R.string.tpl_clutch to null,
+    com.vknxworks.ridectrl.R.string.tpl_gear_oil to null,
+    com.vknxworks.ridectrl.R.string.tpl_air_filter to null,
+    com.vknxworks.ridectrl.R.string.tpl_fuel_filter to null,
+    com.vknxworks.ridectrl.R.string.tpl_brakes_front to null,
+    com.vknxworks.ridectrl.R.string.tpl_brakes_rear to null,
+    com.vknxworks.ridectrl.R.string.tpl_brake_fluid to null,
+    com.vknxworks.ridectrl.R.string.tpl_tyre_front to com.vknxworks.ridectrl.R.string.tpl_tyre_note,
+    com.vknxworks.ridectrl.R.string.tpl_tyre_rear to com.vknxworks.ridectrl.R.string.tpl_tyre_note,
+    com.vknxworks.ridectrl.R.string.tpl_carb to null,
+    com.vknxworks.ridectrl.R.string.tpl_cables to null,
+    com.vknxworks.ridectrl.R.string.tpl_battery to null,
+)
+
+/** The starting list that fits [engine]: the 4-stroke list for a 4-stroke, the 2-stroke list otherwise. */
+fun starterListFor(engine: EngineType): List<Pair<Int, Int?>> =
+    if (engine == EngineType.FOUR_STROKE) FOUR_STROKE_TEMPLATE else SCOOTER_TEMPLATE
+
+/** Whether a new vehicle with [engine] is offered a starting list (2-stroke and 4-stroke; not electric). */
+val EngineType.hasStarterList: Boolean get() = isTwoStroke || this == EngineType.FOUR_STROKE
+
 /** The specs sheet's fields, in order. Values are the user's own; the label says what goes in it. */
 val SPEC_KEYS: List<Pair<String, Int>> = listOf(
     "tyre_front" to com.vknxworks.ridectrl.R.string.spec_tyre_front,
