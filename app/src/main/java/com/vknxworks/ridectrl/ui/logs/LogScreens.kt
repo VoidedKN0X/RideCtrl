@@ -1,5 +1,17 @@
 package com.vknxworks.ridectrl.ui.logs
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material.icons.outlined.PictureAsPdf
+import androidx.compose.runtime.rememberCoroutineScope
+import com.vknxworks.ridectrl.data.loggedYears
+import com.vknxworks.ridectrl.data.yearReport
+import com.vknxworks.ridectrl.ui.components.ChoiceSheet
+import com.vknxworks.ridectrl.ui.lock.AppLock
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -544,9 +556,45 @@ fun NoteEditScreen(vehicleId: String, id: String?) {
 /** Total cost of ownership: per category, per year, and per km ridden. */
 @Composable
 fun CostsScreen(vehicleId: String) {
-    val c = LocalContext.current.container
+    val context = LocalContext.current
+    val c = context.container
     val data by c.logs.data.collectAsStateWithLifecycle()
     val fmt = rememberFmt()
+    val scope = rememberCoroutineScope()
+    var pickYear by remember { mutableStateOf(false) }
+    var reportYear by remember { mutableStateOf<Int?>(null) }
+    val years = remember(data, vehicleId) { data.loggedYears(vehicleId) }
+    // The yearly report as a PDF, made on the phone and saved where you choose.
+    val savePdf = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri ->
+        val year = reportYear
+        reportYear = null
+        if (uri == null || year == null) return@rememberLauncherForActivityResult
+        val snapshot = c.logs.data.value
+        val f = fmt
+        scope.launch {
+            val ok = withContext(Dispatchers.IO) {
+                runCatching {
+                    val report = snapshot.yearReport(vehicleId, year) ?: error("no vehicle")
+                    context.contentResolver.openOutputStream(uri, "wt")?.use { YearReportPdf.write(context, report, f, it) } ?: error("no file")
+                }.isSuccess
+            }
+            Toast.makeText(context, context.getString(if (ok) R.string.report_saved else R.string.report_failed), Toast.LENGTH_SHORT).show()
+        }
+    }
+    if (pickYear) {
+        ChoiceSheet(
+            stringResource(R.string.report_pick_year),
+            years.map { it to it.toString() },
+            null,
+            onDismiss = { pickYear = false },
+        ) { y ->
+            pickYear = false
+            reportYear = y
+            AppLock.expectReturn()
+            val name = data.vehicles.firstOrNull { it.id == vehicleId }?.name.orEmpty().replace(Regex("[^A-Za-z0-9._-]+"), "-").trim('-').ifBlank { "vehicle" }
+            savePdf.launch("RideCtrl-$name-$y.pdf")
+        }
+    }
     val lines = remember(data) { data.costLines(vehicleId) }
     val total = lines.sumOf { it.amount }
     val running = lines.filter { it.category != CostCategory.PURCHASE }.sumOf { it.amount }
@@ -556,9 +604,17 @@ fun CostsScreen(vehicleId: String) {
         .groupBy { it.date!!.take(4) }.map { (y, l) -> y to l.sumOf { it.amount } }.sortedBy { it.first }
 
     Column(Modifier.fillMaxSize()) {
-        ScreenTopBar(stringResource(R.string.costs_title))
+        ScreenTopBar(stringResource(R.string.costs_title)) {
+            CtrlSquareButton(Icons.Outlined.PictureAsPdf, stringResource(R.string.report_make), onClick = { pickYear = true })
+        }
         if (lines.isEmpty()) {
-            MessageView(Icons.Outlined.Payments, stringResource(R.string.costs_empty_title), stringResource(R.string.costs_empty_body))
+            MessageView(
+                Icons.Outlined.Payments,
+                stringResource(R.string.costs_empty_title),
+                stringResource(R.string.costs_empty_body),
+                actionLabel = stringResource(R.string.report_make),
+                onAction = { pickYear = true },
+            )
             return@Column
         }
         LazyColumn(Modifier.fillMaxSize().navigationBarsPadding(), contentPadding = PaddingValues(bottom = 24.dp)) {

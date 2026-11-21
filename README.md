@@ -27,6 +27,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Pre-ride checklists:** your own list per vehicle (or a basic starting list for its engine type), ticked off before a ride and saved with the date, so you can see earlier checks and what wasn't OK
 - **Documents** (insurance, registration, inspection…) with expiry dates and photos
 - **Costs:** total cost of ownership per vehicle, per category and per year, and cost per km
+- **Yearly report as a PDF**, made on your phone (no internet): km ridden, fuel, costs per category, services, mods and tyres fitted for a vehicle and a year of your choice
 - **Backup** to one file with every photo, optionally **encrypted** with a password; restore from it; **CSV export** for spreadsheets
 - **App shortcuts** (Add fuel, Premix calculator, Add temp reading)
 - **Units your way:** km or miles, litres or gallons, °C or °F, and your currency, stored in metric so switching never changes your logs. Number fields take a comma or a period

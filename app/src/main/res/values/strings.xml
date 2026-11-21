@@ -698,4 +698,29 @@
     <string name="check_fuel">Fuel level</string>
     <string name="check_battery_charge">Battery charge</string>
     <string name="check_leaks">No leaks under the vehicle</string>
+    <!-- Yearly report (PDF) -->
+    <string name="report_make">Yearly report (PDF)</string>
+    <string name="report_pick_year">Report for which year?</string>
+    <string name="report_saved">Report saved</string>
+    <string name="report_failed">Couldn\'t make the report</string>
+    <string name="report_pdf_title">%1$s · %2$d</string>
+    <string name="report_pdf_made">Yearly report made with RideCtrl on %1$s</string>
+    <string name="report_pdf_page">Page %1$d</string>
+    <string name="report_pdf_note">Worked out from your own logs in RideCtrl. Km ridden counts the rise of the odometer within the year; a stretch between two readings that spans New Year is shared out by days.</string>
+    <string name="report_riding">Riding</string>
+    <string name="report_km_ridden">Ridden this year</string>
+    <string name="report_odometer_end">Odometer at the end of the year</string>
+    <string name="report_temp_readings">Temperature readings</string>
+    <string name="report_checks">Pre-ride checks</string>
+    <string name="report_jetting_changes">Jetting changes</string>
+    <string name="report_fuel">Fuel</string>
+    <string name="report_fills">Fills</string>
+    <string name="report_litres">Fuel bought</string>
+    <string name="report_fuel_cost">Fuel and oil cost</string>
+    <string name="report_costs">Costs</string>
+    <string name="report_total">Total</string>
+    <string name="report_none">Nothing logged this year</string>
+    <string name="report_services">Services</string>
+    <string name="report_mods">Mods</string>
+    <string name="report_tyres">Tyres fitted</string>
 </resources>
