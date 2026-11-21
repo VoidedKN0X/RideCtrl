@@ -33,6 +33,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **App shortcuts** (Add fuel, Premix calculator, Add temp reading)
 - **Units your way:** km or miles, litres or gallons, °C or °F, and your currency, stored in metric so switching never changes your logs. Number fields take a comma or a period
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
+- **English and Dutch**, following your phone's language (no language setting in the app)
 - **Ctrl / Signal look**, shared by every Ctrl app: dark and light, following your phone's dark theme setting, high contrast, one violet accent, Space Grotesk and JetBrains Mono; tablet and foldable layout
 
 ## Requirements
