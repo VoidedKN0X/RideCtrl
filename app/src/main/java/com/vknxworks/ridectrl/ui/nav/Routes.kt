@@ -46,3 +46,11 @@ import kotlinx.serialization.Serializable
 @Serializable data class NotesRoute(val vehicleId: String)
 @Serializable data class NoteEditRoute(val vehicleId: String, val id: String? = null)
 @Serializable data class CostsRoute(val vehicleId: String)
+
+// Jetting, tyres, pre-ride checklist
+@Serializable data class JettingRoute(val vehicleId: String)
+@Serializable data class JettingEditRoute(val vehicleId: String, val id: String? = null)
+@Serializable data class TyresRoute(val vehicleId: String)
+@Serializable data class TyreEditRoute(val vehicleId: String, val id: String? = null, val position: String? = null, val event: String? = null)
+@Serializable data class ChecklistRoute(val vehicleId: String)
+@Serializable data class ChecklistEditRoute(val vehicleId: String)

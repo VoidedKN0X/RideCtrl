@@ -20,6 +20,8 @@ fun AppData.odoPoints(vehicleId: String): List<OdoPoint> {
     fuel.filter { it.vehicleId == vehicleId }.forEach { add(it.date, it.odometer) }
     services.filter { it.vehicleId == vehicleId }.forEach { add(it.date, it.odometer) }
     mods.filter { it.vehicleId == vehicleId }.forEach { add(it.date, it.odometer) }
+    jetting.filter { it.vehicleId == vehicleId }.forEach { add(it.date, it.odometer) }
+    tyres.filter { it.vehicleId == vehicleId }.forEach { add(it.date, it.odometer) }
     temps.filter { it.vehicleId == vehicleId }.forEach {
         add(java.time.Instant.ofEpochMilli(it.time).atZone(ZoneId.systemDefault()).toLocalDate().toString(), it.odometer)
     }
@@ -241,7 +243,7 @@ fun fuelFor(oilMl: Double, ratio: Double): Double = oilMl * ratio / 1000.0
 
 // ---------------------------------------------------------------- Costs
 
-enum class CostCategory { PURCHASE, FUEL, OIL, MAINTENANCE, PARTS, MODS, DOCUMENTS }
+enum class CostCategory { PURCHASE, FUEL, OIL, MAINTENANCE, PARTS, MODS, TYRES, DOCUMENTS }
 
 data class CostLine(val category: CostCategory, val date: String?, val amount: Double)
 
@@ -268,6 +270,9 @@ fun AppData.costLines(vehicleId: String): List<CostLine> {
         m.cost?.let { if (it > 0) out += CostLine(CostCategory.MODS, m.date, it) }
         val p = partsCost(m.parts)
         if (p > 0) out += CostLine(CostCategory.PARTS, m.date, p)
+    }
+    tyres.filter { it.vehicleId == vehicleId && it.event == TyreEvent.FITTED }.forEach { t ->
+        t.cost?.let { if (it > 0) out += CostLine(CostCategory.TYRES, t.date, it) }
     }
     docs.filter { it.vehicleId == vehicleId }.forEach { d ->
         d.cost?.let { if (it > 0) out += CostLine(CostCategory.DOCUMENTS, d.expiry, it) }

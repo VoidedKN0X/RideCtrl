@@ -185,6 +185,83 @@ data class VehicleNote(
     val text: String,
 )
 
+/** What the spark plug's insulator looks like after a run: the classic read of a 2-stroke's mixture. */
+@Serializable
+enum class PlugColour { WHITE, LIGHT_TAN, TAN, DARK_BROWN, BLACK_DRY, BLACK_WET }
+
+/**
+ * One carburettor setting tried on a date: jets, needle clip position, the weather it was tried in and how the
+ * plug looked. Jet sizes are text as written on the jet ("85", "38", "2.60"). It stays in use until the next
+ * entry for the same vehicle, and the temperature readings taken in that time are shown with it.
+ */
+@Serializable
+data class JettingEntry(
+    val id: String,
+    val vehicleId: String,
+    val date: String,
+    val odometer: Double? = null,
+    val mainJet: String = "",
+    val idleJet: String = "",
+    /** Needle clip position as the user counts it (for example "3", "middle", "2nd from top"). */
+    val needleClip: String = "",
+    val ambientC: Double? = null,
+    /** Relative humidity in %. */
+    val humidity: Int? = null,
+    val weather: String = "",
+    val plugColour: PlugColour? = null,
+    val notes: String = "",
+)
+
+@Serializable
+enum class TyrePosition { FRONT, REAR }
+
+/** A tyre log entry: a new tyre fitted, or a check of pressure and tread on the tyre that's on. */
+@Serializable
+enum class TyreEvent { FITTED, CHECK }
+
+@Serializable
+data class TyreEntry(
+    val id: String,
+    val vehicleId: String,
+    val position: TyrePosition = TyrePosition.FRONT,
+    val event: TyreEvent = TyreEvent.CHECK,
+    val date: String,
+    val odometer: Double? = null,
+    /** Only for a fitted tyre: what it is. */
+    val brand: String = "",
+    val model: String = "",
+    val size: String = "",
+    /** The DOT date code on the sidewall: week and year, "2423" is week 24 of 2023. */
+    val dotCode: String = "",
+    val cost: Double? = null,
+    /** Pressure in bar and tread depth in mm, as measured. */
+    val pressureBar: Double? = null,
+    val treadMm: Double? = null,
+    val notes: String = "",
+)
+
+/** One thing to check before a ride, in a vehicle's own pre-ride checklist. */
+@Serializable
+data class ChecklistItem(
+    val id: String,
+    val vehicleId: String,
+    val text: String,
+    val order: Int = 0,
+)
+
+/** A pre-ride check that was done: which items were on the list then and which of them were OK. */
+@Serializable
+data class PreRideCheck(
+    val id: String,
+    val vehicleId: String,
+    val time: Long,
+    /** The items as they were worded at the time, so the history still reads right after the list changes. */
+    val items: List<String> = emptyList(),
+    /** Indexes into [items] that were ticked OK. */
+    val ok: List<Int> = emptyList(),
+    val notes: String = "",
+)
+
 /** The whole store: one JSON file. */
 @Serializable
 data class AppData(
@@ -200,6 +277,10 @@ data class AppData(
     val temps: List<TempReading> = emptyList(),
     val docs: List<VehicleDoc> = emptyList(),
     val notes: List<VehicleNote> = emptyList(),
+    val jetting: List<JettingEntry> = emptyList(),
+    val tyres: List<TyreEntry> = emptyList(),
+    val checklist: List<ChecklistItem> = emptyList(),
+    val checks: List<PreRideCheck> = emptyList(),
 ) {
     /** Every photo file name referenced anywhere. */
     fun photoNames(): Set<String> = buildSet {
@@ -222,6 +303,10 @@ data class AppData(
         temps = temps.filterNot { it.vehicleId == id },
         docs = docs.filterNot { it.vehicleId == id },
         notes = notes.filterNot { it.vehicleId == id },
+        jetting = jetting.filterNot { it.vehicleId == id },
+        tyres = tyres.filterNot { it.vehicleId == id },
+        checklist = checklist.filterNot { it.vehicleId == id },
+        checks = checks.filterNot { it.vehicleId == id },
     )
 }
 

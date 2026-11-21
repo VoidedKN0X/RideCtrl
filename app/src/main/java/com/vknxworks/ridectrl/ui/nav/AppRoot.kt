@@ -296,6 +296,13 @@ private fun AppNavHost(navController: NavHostController) {
         composable<NotesRoute> { NotesScreen(it.toRoute<NotesRoute>().vehicleId) }
         composable<NoteEditRoute> { val r = it.toRoute<NoteEditRoute>(); NoteEditScreen(r.vehicleId, r.id) }
         composable<CostsRoute> { CostsScreen(it.toRoute<CostsRoute>().vehicleId) }
+
+        composable<JettingRoute> { com.vknxworks.ridectrl.ui.logs.JettingScreen(it.toRoute<JettingRoute>().vehicleId) }
+        composable<JettingEditRoute> { val r = it.toRoute<JettingEditRoute>(); com.vknxworks.ridectrl.ui.logs.JettingEditScreen(r.vehicleId, r.id) }
+        composable<TyresRoute> { com.vknxworks.ridectrl.ui.logs.TyresScreen(it.toRoute<TyresRoute>().vehicleId) }
+        composable<TyreEditRoute> { val r = it.toRoute<TyreEditRoute>(); com.vknxworks.ridectrl.ui.logs.TyreEditScreen(r.vehicleId, r.id, r.position, r.event) }
+        composable<ChecklistRoute> { com.vknxworks.ridectrl.ui.logs.ChecklistScreen(it.toRoute<ChecklistRoute>().vehicleId) }
+        composable<ChecklistEditRoute> { com.vknxworks.ridectrl.ui.logs.ChecklistEditScreen(it.toRoute<ChecklistEditRoute>().vehicleId) }
     }
 }
 

@@ -21,6 +21,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Notes
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.outlined.Checklist
+import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.TireRepair
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Inventory2
@@ -75,7 +78,10 @@ import com.vknxworks.ridectrl.ui.components.SectionLabel
 import com.vknxworks.ridectrl.ui.components.StatRow
 import com.vknxworks.ridectrl.ui.components.StatTile
 import com.vknxworks.ridectrl.ui.components.rememberFmt
+import com.vknxworks.ridectrl.ui.nav.ChecklistRoute
 import com.vknxworks.ridectrl.ui.nav.CostsRoute
+import com.vknxworks.ridectrl.ui.nav.JettingRoute
+import com.vknxworks.ridectrl.ui.nav.TyresRoute
 import com.vknxworks.ridectrl.ui.nav.DocsRoute
 import com.vknxworks.ridectrl.ui.nav.FuelEditRoute
 import com.vknxworks.ridectrl.ui.nav.FuelRoute
@@ -122,6 +128,7 @@ fun VehicleScreen(id: String) {
     val running = remember(data) { data.costLines(id).filter { it.category != CostCategory.PURCHASE }.sumOf { it.amount } }
     val perKm = remember(data) { data.runningCostPerKm(id) }
     val lastTemp = data.temps.filter { it.vehicleId == id }.maxByOrNull { it.time }
+    val lastCheck = data.checks.filter { it.vehicleId == id }.maxByOrNull { it.time }
     val docsDue = data.docs.filter { it.vehicleId == id }.count { it.state() == DueState.SOON || it.state() == DueState.OVERDUE }
 
     Column(Modifier.fillMaxSize()) {
@@ -216,6 +223,17 @@ fun VehicleScreen(id: String) {
                 )
                 GroupRow(stringResource(R.string.mods_title), null, Icons.Outlined.Tune, showChevron = true, onClick = { nav.navigate(ModsRoute(id)) })
                 GroupRow(stringResource(R.string.temps_title), null, Icons.Outlined.Thermostat, showChevron = true, onClick = { nav.navigate(TempsRoute(id)) })
+                if (v.engine != EngineType.ELECTRIC) {
+                    GroupRow(stringResource(R.string.jetting_title), stringResource(R.string.jetting_sub), Icons.Outlined.Science, showChevron = true, onClick = { nav.navigate(JettingRoute(id)) })
+                }
+                GroupRow(stringResource(R.string.tyres_title), null, Icons.Outlined.TireRepair, showChevron = true, onClick = { nav.navigate(TyresRoute(id)) })
+                GroupRow(
+                    stringResource(R.string.checklist_title),
+                    lastCheck?.let { stringResource(R.string.checklist_last, fmt.dateTime(it.time)) },
+                    Icons.Outlined.Checklist,
+                    showChevron = true,
+                    onClick = { nav.navigate(ChecklistRoute(id)) },
+                )
                 GroupRow(stringResource(R.string.odo_title), null, Icons.Outlined.Speed, showChevron = true, onClick = { nav.navigate(OdometerRoute(id)) })
                 GroupRow(
                     stringResource(R.string.docs_title),

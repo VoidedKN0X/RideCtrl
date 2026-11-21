@@ -246,7 +246,8 @@ fun BackupScreen() {
                 R.string.restore_confirm_body,
                 when_,
                 m.data.vehicles.size,
-                m.data.fuel.size + m.data.services.size + m.data.mods.size + m.data.temps.size + m.data.odometer.size,
+                m.data.fuel.size + m.data.services.size + m.data.mods.size + m.data.temps.size + m.data.odometer.size +
+                    m.data.jetting.size + m.data.tyres.size + m.data.checks.size,
                 backup.photos.size,
             ),
             confirm = stringResource(R.string.restore_confirm),

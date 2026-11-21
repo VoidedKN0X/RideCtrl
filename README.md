@@ -22,6 +22,9 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Mods log** with before and after photos and tuning results, and a **specs sheet** per vehicle where every value is yours, with its source
 - **Temperature log** for your gauge, with conditions and setup, a chart, and min/avg/max per setup to compare jetting or exhaust changes
 - **Odometer history and trips** (no GPS), with gauge swaps handled
+- **Jetting log** for carburettor engines: main and idle jet, needle clip position, weather (temperature, humidity, conditions) and plug colour per setting, each shown with the min/avg/max of your temperature readings from the days it was in use
+- **Tyre log:** the tyres you fit (brand, model, size, DOT date code, price) and your pressure and tread checks, with the km and age of the tyre that's on, front and rear; tyre prices count in your costs
+- **Pre-ride checklists:** your own list per vehicle (or a basic starting list for its engine type), ticked off before a ride and saved with the date, so you can see earlier checks and what wasn't OK
 - **Documents** (insurance, registration, inspection…) with expiry dates and photos
 - **Costs:** total cost of ownership per vehicle, per category and per year, and cost per km
 - **Backup** to one file with every photo, optionally **encrypted** with a password; restore from it; **CSV export** for spreadsheets

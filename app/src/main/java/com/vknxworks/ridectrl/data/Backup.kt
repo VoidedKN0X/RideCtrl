@@ -44,7 +44,11 @@ data class BackupManifest(
     )
 
     companion object {
-        const val FORMAT = 1
+        /**
+         * 2: adds the jetting log, tyre log and pre-ride checklists. An older RideCtrl refuses a format-2 backup
+         * ("made by a newer version") instead of restoring it without them.
+         */
+        const val FORMAT = 2
     }
 }
 
@@ -200,6 +204,8 @@ object BackupFile {
             unique(trips.map { it.id }) && unique(serviceItems.map { it.id }) && unique(services.map { it.id }) &&
             unique(parts.map { it.id }) && unique(mods.map { it.id }) && unique(temps.map { it.id }) &&
             unique(docs.map { it.id }) && unique(notes.map { it.id }) &&
+            unique(jetting.map { it.id }) && unique(tyres.map { it.id }) &&
+            unique(checklist.map { it.id }) && unique(checks.map { it.id }) &&
             photoNames().all { safeName(it) }
     }
 

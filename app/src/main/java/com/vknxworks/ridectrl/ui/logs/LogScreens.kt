@@ -118,6 +118,7 @@ fun costLabel(c: CostCategory): String = stringResource(
         CostCategory.MAINTENANCE -> R.string.cost_maintenance
         CostCategory.PARTS -> R.string.cost_parts
         CostCategory.MODS -> R.string.cost_mods
+        CostCategory.TYRES -> R.string.cost_tyres
         CostCategory.DOCUMENTS -> R.string.cost_documents
     },
 )
