@@ -601,13 +601,13 @@
     <string name="jetting_idle">Idle jet</string>
     <string name="jetting_clip">Needle clip position</string>
     <string name="jetting_clip_hint">e.g. 3rd from top</string>
-    <string name="jetting_carb_note">Write the sizes as they're stamped on the jet. A new entry starts from your last setting.</string>
+    <string name="jetting_carb_note">Write the sizes as they\'re stamped on the jet. A new entry starts from your last setting.</string>
     <string name="jetting_weather">Weather</string>
     <string name="jetting_humidity">Humidity</string>
     <string name="jetting_weather_text">Conditions</string>
     <string name="jetting_weather_hint">e.g. dry, cold morning</string>
     <string name="jetting_plug">Plug colour</string>
-    <string name="jetting_plug_note">Your own read of the plug after a run. RideCtrl doesn't judge the mixture for you.</string>
+    <string name="jetting_plug_note">Your own read of the plug after a run. RideCtrl doesn\'t judge the mixture for you.</string>
     <string name="jetting_temps">Temperatures with this setting</string>
     <string name="plug_not_checked">Not checked</string>
     <string name="plug_white">White</string>
@@ -686,7 +686,7 @@
     <string name="checklist_move_down">Move down</string>
     <string name="checklist_edit_note">Tap an item to rename it. Earlier checks keep the wording they were saved with.</string>
     <string name="checklist_remove_title">Remove this item?</string>
-    <string name="checklist_remove_body">"%1$s" is taken off the checklist. Earlier checks keep it.</string>
+    <string name="checklist_remove_body">\"%1$s\" is taken off the checklist. Earlier checks keep it.</string>
     <string name="check_tyres">Tyre pressure and condition</string>
     <string name="check_brakes">Front and rear brakes</string>
     <string name="check_lights">Lights, indicators and brake light</string>
