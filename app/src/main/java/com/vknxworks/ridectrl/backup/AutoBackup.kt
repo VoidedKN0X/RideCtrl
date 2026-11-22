@@ -2,7 +2,12 @@ package com.vknxworks.ridectrl.backup
 
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.app.job.JobInfo
+import android.app.job.JobParameters
+import android.app.job.JobScheduler
+import android.app.job.JobService
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -13,6 +18,7 @@ import com.vknxworks.ridectrl.data.crypto.SealedFile
 import com.vknxworks.ridectrl.data.settings.AutoBackupEvery
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -42,6 +48,20 @@ object AutoBackup {
     const val PREFIX = "RideCtrl-auto-"
     private val NAME = Regex("""RideCtrl-auto-\d{4}-\d{2}-\d{2}-\d{4}\.(zip|ridectrl)""")
     private val STAMP = DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmm")
+    /** A backup still being written (or one that was cut off) has this after its final name. */
+    const val PART = ".part"
+
+    /** One of RideCtrl's finished automatic backups: only these count towards "keep the newest". */
+    fun isBackupName(name: String): Boolean = NAME.matches(name)
+
+    /** A cut-off automatic backup: removed at the next good backup, never counted as one. */
+    fun isStalePart(name: String): Boolean = name.endsWith(PART) && NAME.matches(name.removeSuffix(PART))
+
+    private fun supportsRename(context: Context, doc: Uri): Boolean = runCatching {
+        context.contentResolver.query(doc, arrayOf(DocumentsContract.Document.COLUMN_FLAGS), null, null, null)?.use { cur ->
+            cur.moveToFirst() && (cur.getInt(0) and DocumentsContract.Document.FLAG_SUPPORTS_RENAME) != 0
+        } ?: false
+    }.getOrDefault(false)
 
     enum class Problem { NO_FOLDER, FOLDER_GONE, LOGS_UNREADABLE, NO_PASSWORD, WRITE_FAILED }
 
@@ -116,12 +136,25 @@ object AutoBackup {
             DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
         }.getOrNull() ?: return Problem.FOLDER_GONE
         val name = PREFIX + LocalDateTime.now().format(STAMP) + if (password != null) ".ridectrl" else ".zip"
-        val doc = try {
-            DocumentsContract.createDocument(resolver, parent, "application/octet-stream", name)
+        // Written as "<name>.part" and renamed only once it's complete, so a backup cut off half-way (the phone
+        // restarting, the system stopping RideCtrl) never looks like a real one and can't push a good one out.
+        fun create(displayName: String): Uri? = try {
+            DocumentsContract.createDocument(resolver, parent, "application/octet-stream", displayName)
         } catch (e: Exception) {
             null
         }
-        if (doc == null) {
+        var partial = true
+        val partDoc = create(name + PART)?.let { d ->
+            if (supportsRename(context, d)) {
+                d
+            } else {
+                // A folder (some cloud apps) that can't rename: write under the final name straight away, as before.
+                runCatching { DocumentsContract.deleteDocument(resolver, d) }
+                null
+            }
+        }
+        if (partDoc == null) partial = false
+        val doc: Uri = partDoc ?: create(name) ?: run {
             password?.fill('\u0000')
             return Problem.FOLDER_GONE
         }
@@ -134,7 +167,8 @@ object AutoBackup {
         } finally {
             password?.fill('\u0000')
         }
-        if (!ok) {
+        val done = ok && (!partial || runCatching { DocumentsContract.renameDocument(resolver, doc, name) }.getOrNull() != null)
+        if (!done) {
             // A half-written file is no backup: it goes, so it can't be mistaken for one.
             runCatching { DocumentsContract.deleteDocument(resolver, doc) }
             return Problem.WRITE_FAILED
@@ -161,7 +195,9 @@ object AutoBackup {
                 while (cur.moveToNext()) {
                     val id = cur.getString(0) ?: continue
                     val n = cur.getString(1) ?: continue
-                    if (NAME.matches(n)) ours += id to n
+                    if (isBackupName(n)) ours += id to n
+                    // Left over from a backup that was cut off: never a backup, never counted.
+                    else if (isStalePart(n)) runCatching { DocumentsContract.deleteDocument(resolver, DocumentsContract.buildDocumentUriUsingTree(tree, id)) }
                 }
             }
         }
@@ -206,17 +242,59 @@ object AutoBackup {
     }
 }
 
-/** The nightly check, and re-arming it. */
+/**
+ * The nightly alarm: re-arms itself and hands the backup to [AutoBackupJob]. A receiver only gets a few seconds,
+ * too little to decrypt every photo, zip them and (with a password) encrypt the lot into a folder that may be slow.
+ */
 class AutoBackupReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        val app = context.applicationContext
+        runCatching { AutoBackupJob.enqueue(app) }
         val pending = goAsync()
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                runCatching { AutoBackup.runIfDue(context.applicationContext) }
-                runCatching { AutoBackup.schedule(context.applicationContext) }
+                runCatching { AutoBackup.schedule(app) }
             } finally {
                 pending.finish()
             }
+        }
+    }
+}
+
+/**
+ * Runs the automatic backup as a background job (Android's own JobScheduler, no extra library or permission):
+ * it gets up to several minutes instead of a receiver's seconds, and waits until the battery isn't low. If Android
+ * stops it part-way, the cut-off file is only a ".part" (see [AutoBackup]) and the job is tried again later.
+ */
+class AutoBackupJob : JobService() {
+    private var job: Job? = null
+
+    override fun onStartJob(params: JobParameters): Boolean {
+        job = CoroutineScope(Dispatchers.IO).launch {
+            runCatching { AutoBackup.runIfDue(applicationContext) }
+            jobFinished(params, false)
+        }
+        return true
+    }
+
+    override fun onStopJob(params: JobParameters): Boolean {
+        job?.cancel()
+        job = null
+        // Stopped before it finished: try again later (runIfDue skips it if a backup was made meanwhile).
+        return true
+    }
+
+    companion object {
+        private const val JOB_ID = 3001
+
+        /** Asks Android to run the backup check soon; a job that is already waiting is replaced, not doubled. */
+        fun enqueue(context: Context) {
+            val js = context.getSystemService(JobScheduler::class.java) ?: return
+            val info = JobInfo.Builder(JOB_ID, ComponentName(context, AutoBackupJob::class.java))
+                .setRequiresBatteryNotLow(true)
+                .setRequiresStorageNotLow(true)
+                .build()
+            js.schedule(info)
         }
     }
 }

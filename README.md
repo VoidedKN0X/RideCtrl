@@ -29,7 +29,7 @@ Part of the [Ctrl series](#the-ctrl-series) by VKNXWorks.
 - **Costs:** total cost of ownership per vehicle, per category and per year, and cost per km
 - **Yearly report as a PDF**, made on your phone (no internet): km ridden, fuel, costs per category, services, mods and tyres fitted for a vehicle and a year of your choice
 - **Backup** to one file with every photo, optionally **encrypted** with a password; restore from it; **CSV export** for spreadsheets
-- **Scheduled local backups:** every day or every week, the same backup file is written by itself into a folder you pick (optionally encrypted with a password kept encrypted on the phone), keeping only the newest few of its own automatic backups
+- **Scheduled local backups:** every day or every week, the same backup file is written by itself into a folder you pick (optionally encrypted with a password kept encrypted on the phone), keeping only the newest few of its own automatic backups. The nightly check hands the backup to an Android background job that waits until the battery isn't low; a backup is written as `….part` and gets its real name only once it's complete, so a cut-off one never counts as a backup
 - **App shortcuts** (Add fuel, Premix calculator, Add temp reading)
 - **Units your way:** km or miles, litres or gallons, °C or °F, and your currency, stored in metric so switching never changes your logs. Number fields take a comma or a period
 - **App lock** with its own PIN and optional fingerprint unlock, and **Hide in screenshots** / **Hide in recent apps** (both off until you turn them on)
@@ -117,7 +117,7 @@ Turn it on under **Settings > Privacy and security > App lock** (tap your profil
 - **The PIN is never stored.** It's stretched with 600,000 rounds of PBKDF2 and mixed with a key held in the phone's secure hardware.
 - **Wrong PINs:** after 5 tries you wait 30 seconds, doubling up to 15 minutes. Restarting the app or the phone, or changing the clock, doesn't skip the wait.
 - **Lock again:** as soon as you leave the app (the default), after 1, 5 or 15 minutes or 1 hour away, or only when the app restarts.
-- **Forgot your PIN?** It can't be recovered. The lock screen offers to delete everything on the phone and turn the lock off; restore from a backup file afterwards.
+- **Forgot your PIN?** It can't be recovered. The lock screen offers to delete everything on the phone and turn the lock off; restore from a backup file afterwards. If your phone has a screen lock, you confirm the reset with it (or a fingerprint) first, so someone holding your unlocked phone can't wipe RideCtrl that way; without a screen lock the confirmation dialog is all there is.
 
 **Hide in screenshots** and **Hide in recent apps** (both off by default): the first keeps RideCtrl out of screenshots and screen recordings, the second shows a blank card in the recent-apps view while screenshots still work. With the app lock on, the recent-apps view always shows a blank card.
 

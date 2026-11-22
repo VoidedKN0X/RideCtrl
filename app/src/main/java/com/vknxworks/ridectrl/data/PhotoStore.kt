@@ -99,6 +99,16 @@ class PhotoStore(private val context: Context, private val keys: DataKeyStore) {
         cameraDir.listFiles()?.forEach { it.delete() }
     }
 
+    /**
+     * Removes camera originals left in the cache by a capture that never finished (RideCtrl was closed by the system
+     * before copying the photo in). Only files older than [olderThanMs], so a photo the camera app has just handed
+     * back to a restarted RideCtrl is never taken away before it's copied in.
+     */
+    fun clearStaleCaptures(olderThanMs: Long = 24 * 3_600_000L) {
+        val cutoff = System.currentTimeMillis() - olderThanMs
+        cameraDir.listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
+    }
+
     fun delete(name: String) {
         synchronized(lock) {
             file(name).delete()

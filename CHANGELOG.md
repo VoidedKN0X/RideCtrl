@@ -4,6 +4,18 @@ What changed in each RideCtrl release. Every release on the [Releases page](http
 
 To publish a new version: bump `versionCode` and `versionName` in `app/build.gradle.kts`, add a section here, and push to `main`. Pushes without a version bump only build; they don't make a release.
 
+## Unreleased
+
+### Security
+
+- **"Forgot PIN?" now asks for your phone's screen lock first.** Resetting the app lock deletes every vehicle, log, photo and setting on the phone and turns the lock off. It used to need only a tap on the confirmation, so anyone holding your unlocked phone could wipe RideCtrl (or get past its lock) that way. Now, after you confirm, the phone's own screen lock (PIN, pattern, password or a fingerprint) is asked for, and only then is everything reset. Cancelling it changes nothing. If your phone has no screen lock, it works as before (the confirmation alone). The warning that everything will be deleted stays.
+- **Leftover camera photos are cleaned up.** A photo taken with the camera is briefly kept, unencrypted, in RideCtrl's cache until it's copied in (and sealed). If Android closed RideCtrl right in between, that original stayed until the next time you took a photo. At start RideCtrl now removes such leftovers that are more than a day old.
+
+### Fixed
+
+- **Automatic backups with many photos no longer get cut off.** The nightly backup ran inside the short window Android gives an alarm (seconds, not minutes): decrypting every photo, zipping them and, with a password, encrypting the whole file into your folder. With many photos or a slow (cloud) folder Android could stop RideCtrl half-way. The nightly alarm now hands the backup to an Android background job, which gets several minutes and waits until the battery isn't low; if Android stops it anyway, it's tried again later. The backup itself is the same file as before, made at about the same time.
+- **A cut-off automatic backup can no longer push out a good one.** A backup is now written as `RideCtrl-auto-….zip.part` (or `.ridectrl.part`) and only gets its real name once it's complete. A file left half-written (the phone restarting, Android stopping RideCtrl) is never counted among the backups to keep, so it can't make RideCtrl delete an older complete backup, and it's removed at the next good backup. Folders that can't rename files (some cloud apps) are written under the final name straight away, as before.
+
 ## v0.7.0 (2026-11-21)
 
 Built and checked by CI only: nothing in this release had been run on a phone when it was published.

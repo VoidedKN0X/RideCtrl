@@ -86,6 +86,12 @@
         <receiver
             android:name=".backup.AutoBackupReceiver"
             android:exported="false" />
+        <!-- The automatic backup itself runs as a job (JobScheduler), started by the receiver above.
+             BIND_JOB_SERVICE only lets the system bind it; it isn't a permission RideCtrl asks for. -->
+        <service
+            android:name=".backup.AutoBackupJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
 
         <!-- No downloadable emoji font: don't let androidx.emoji2 look one up from a font provider
              at start-up. Emoji are drawn with the phone's own emoji font instead. -->

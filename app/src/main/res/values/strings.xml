@@ -74,8 +74,11 @@
     <string name="lock_too_many">Too many tries. Try again in %1$d s</string>
     <string name="lock_forgot">Forgot PIN?</string>
     <string name="lock_forgot_title">Forgot your PIN?</string>
-    <string name="lock_forgot_body">The PIN can\'t be recovered. RideCtrl will delete every vehicle, log, photo and setting on this phone and turn the app lock off. If you backed up to a file, you can restore everything from it afterwards.</string>
+    <string name="lock_forgot_body">The PIN can\'t be recovered. RideCtrl will delete every vehicle, log, photo and setting on this phone and turn the app lock off. If you backed up to a file, you can restore everything from it afterwards. If your phone has a screen lock, you\'ll confirm with it first.</string>
     <string name="lock_forgot_confirm">Delete everything and reset</string>
+    <string name="lock_reset_prompt_title">Reset RideCtrl\'s app lock</string>
+    <string name="lock_reset_prompt_subtitle">Use your phone\'s screen lock to confirm it\'s you</string>
+    <string name="lock_reset_prompt_failed">Couldn\'t show the screen lock prompt</string>
     <string name="lock_choose_pin">Choose an app PIN</string>
     <string name="lock_enable_intro">At least %1$d digits, different from your phone\'s PIN. If you forget it, the only way back in is to delete your vehicles and logs and start again.</string>
     <string name="lock_change_pin">Change app PIN</string>

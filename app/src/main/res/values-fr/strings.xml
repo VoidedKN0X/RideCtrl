@@ -65,8 +65,11 @@
     <string name="lock_too_many">Trop de tentatives. Réessayez dans %1$d s</string>
     <string name="lock_forgot">Code PIN oublié ?</string>
     <string name="lock_forgot_title">Vous avez oublié votre code PIN ?</string>
-    <string name="lock_forgot_body">Le code PIN ne peut pas être récupéré. RideCtrl supprimera tous les véhicules, journaux, photos et paramètres sur ce téléphone et désactivera le verrouillage. Si vous avez fait une sauvegarde dans un fichier, vous pourrez tout restaurer ensuite.</string>
+    <string name="lock_forgot_body">Le code PIN ne peut pas être récupéré. RideCtrl supprimera tous les véhicules, journaux, photos et paramètres sur ce téléphone et désactivera le verrouillage. Si vous avez fait une sauvegarde dans un fichier, vous pourrez tout restaurer ensuite. Si votre téléphone a un verrouillage d\'écran, vous le confirmerez d\'abord avec celui-ci.</string>
     <string name="lock_forgot_confirm">Tout supprimer et réinitialiser</string>
+    <string name="lock_reset_prompt_title">Réinitialiser le verrouillage de RideCtrl</string>
+    <string name="lock_reset_prompt_subtitle">Utilisez le verrouillage d\'écran de votre téléphone pour confirmer votre identité</string>
+    <string name="lock_reset_prompt_failed">Impossible d\'afficher le verrouillage d\'écran</string>
     <string name="lock_choose_pin">Choisissez un code PIN pour l\'application</string>
     <string name="lock_enable_intro">Au moins %1$d chiffres, différent du code PIN de votre téléphone. Si vous l\'oubliez, la seule solution est de supprimer vos véhicules et journaux et de recommencer.</string>
     <string name="lock_change_pin">Modifier le code PIN de l\'application</string>
